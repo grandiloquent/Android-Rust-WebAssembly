@@ -1,9 +1,8 @@
 use std::ffi::CString;
-use std::fs;
 use std::io::Read;
 use std::ptr::NonNull;
 use jni::JNIEnv;
-use jni::objects::{JObject, JString, JValue};
+use jni::objects::{JObject};
 use ndk::asset::AssetManager;
 
 pub fn get_asset_manager(env: JNIEnv, asset_manager_object: JObject) -> AssetManager {

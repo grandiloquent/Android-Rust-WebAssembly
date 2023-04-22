@@ -2,12 +2,10 @@ use std::sync::Arc;
 use ndk::asset::AssetManager;
 use rocket::{catchers, routes};
 use rocket::data::{Limits, ToByteUnit};
-use rocket::figment::providers::Toml;
 use rocket::config::LogLevel;
 use crate::data::server::Server;
 use crate::handler::not_found::not_found;
 use rocket::figment::Figment;
-use rocket::figment::providers::{Format};
 use crate::data::cache::Cache;
 
 fn build_limits() -> Limits {
@@ -18,7 +16,7 @@ fn build_limits() -> Limits {
         .limit("file", 5.gibibytes())
 }
 
-fn build_figment() -> Figment {
+fn build_figment(srv: &Server) -> Figment {
     Figment::from(rocket::Config::default())
         .merge((rocket::Config::ADDRESS, srv.host))
         .merge((rocket::Config::PORT, srv.port))
@@ -29,7 +27,7 @@ fn build_figment() -> Figment {
 
 #[tokio::main]
 pub async fn run_server(srv: Server, ass: AssetManager) {
-    let mut server = rocket::custom(build_figment())
+    let mut server = rocket::custom(build_figment(&srv))
         .manage(Arc::new(Cache::new(ass)))
         .mount("/",
                routes![handler::file::file,handler::html::file])

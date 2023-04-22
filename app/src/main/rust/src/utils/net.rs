@@ -1,5 +1,4 @@
 use std::net::{IpAddr, TcpListener, UdpSocket};
-use std::thread;
 
 pub fn listen_available_port(start: u16) -> Option<u16> {
     (start..9000).find(|port| port_is_available(*port))

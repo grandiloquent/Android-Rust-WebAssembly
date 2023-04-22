@@ -1,6 +1,5 @@
-use std::fs;
 use std::path::{Path};
-use rocket::http::Status;
+use rocket::get;
 use crate::seek_stream::SeekStream;
 #[get("/file?<path>")]
 pub fn file<'a>(path: String) -> std::io::Result<SeekStream<'a>> {

@@ -1,2 +1,2 @@
-[WorkingDirectory] = C:\Users\Administrator\Desktop\Files\video
-[out-dir] = C:\Users\Administrator\Desktop\Files\video\pkg
+[WorkingDirectory] = C:\Users\Administrator\Desktop\Plane\app\src\main\frontend
+[out-dir] = C:\Users\Administrator\Desktop\Plane\app\src\main\assets
