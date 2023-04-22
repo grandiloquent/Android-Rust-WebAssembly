@@ -1,5 +1,7 @@
-package psycho.euphoria.killer;
- 
+package psycho.euphoria.plane;
+
+import android.app.Activity;
+
 public class MainActivity extends Activity {
 
     static {
