@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate rocket;
+
 mod utils;
 mod seek_stream;
 mod server;
