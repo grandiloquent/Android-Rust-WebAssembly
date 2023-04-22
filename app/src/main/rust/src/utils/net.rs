@@ -1,15 +1,29 @@
 use std::net::{IpAddr, TcpListener, UdpSocket};
+use std::thread;
 
 pub fn listen_available_port(start: u16) -> Option<u16> {
-    // 1025
-    for port in (start..65535) {
-        match TcpListener::bind(("127.0.0.1", port)) {
-            Ok(l) => return Some(port),
-            _ => {}
-        }
-    }
+    (start..9000).find(|port| port_is_available(*port))
+    // let t = thread::spawn(move || {
+    //     // 1025
+    //     for port in (start..65535) {
+    //         match  UdpSocket::bind(("127.0.0.1", port)) {
+    //             Ok(l) => {
+    //
+    //                 drop(l);
+    //                 return port;
+    //             }
+    //             _ => {}
+    //         }
+    //     }
+    //     0
+    // });
+    //
+    //
+    // Some(t.join().unwrap())
+}
 
-    None
+pub fn port_is_available(port: u16) -> bool {
+    TcpListener::bind(("127.0.0.1", port)).is_ok()
 }
 
 pub fn get_local_ip_address(is_ipv6: bool) -> Option<IpAddr> {

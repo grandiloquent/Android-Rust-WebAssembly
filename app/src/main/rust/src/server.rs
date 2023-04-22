@@ -4,9 +4,14 @@ use rocket::catchers;
 use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::providers::Toml;
 use rocket::config::LogLevel;
+use crate::data::server::Server;
+use crate::handler::not_found::not_found;
+use rocket::figment::Figment;
+use rocket::figment::providers::{Format};
+use crate::data::cache::Cache;
 
 #[tokio::main]
-pub async fn run_server(srv: Server,ass: AssetManager) {
+pub async fn run_server(srv: Server, ass: AssetManager) {
     let limits = Limits::default()
         .limit("json", 3.mebibytes())
         .limit("string", 3.mebibytes())
@@ -25,7 +30,7 @@ pub async fn run_server(srv: Server,ass: AssetManager) {
         .merge(toml);
     let mut server = rocket::custom(figment)
         .manage(Arc::new(Cache::new(ass)))
-        .register("/", catchers![error::not_found]);
+        .register("/", catchers![not_found]);
     ;
     server.launch().await;
 }
