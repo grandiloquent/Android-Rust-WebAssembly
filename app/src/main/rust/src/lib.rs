@@ -4,7 +4,7 @@ mod server;
 mod data;
 mod handler;
 
-use std::thread;
+
 use jni::JNIEnv;
 use jni::objects::{JObject, JString};
 use jni::sys::{jstring};
@@ -38,19 +38,21 @@ pub extern "C" fn Java_psycho_euphoria_plane_MainActivity_startServer<'a>(
     // use the TcpListener.bind to find some available port
     // would let the rocket bind fails
     // drop TcpListener early also don't work.
-     listen_available_port(5000).expect("Couldn't listen_available_port");
-    let port = 5000;
+    //listen_available_port(5000).expect("Couldn't listen_available_port");
+    let port = 3000;
     let ass = get_asset_manager(env, asset_manager);
     let output = env
         .new_string(format!("{}:{}", host, port))
         .expect("Couldn't create java string!");
     log::error!("{}:{}", host,port);
 
-    run_server(Server {
-        host,
-        port: port,
-        temp_dir: "/storage/emulated/0".to_string(),
-    }, ass);
+    std::thread::spawn(move || {
+        run_server(Server {
+            host,
+            port,
+            temp_dir: "/storage/emulated/0".to_string(),
+        }, ass);
+    });
 
     output
 }
