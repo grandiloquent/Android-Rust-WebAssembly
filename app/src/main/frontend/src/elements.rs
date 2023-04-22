@@ -329,8 +329,8 @@ pub fn append_track(document: &Document, video: Arc<HtmlVideoElement>, src: &str
     let src = format!(
         "{}{}",
         src.to_string()
-            .replace("/api/file", "/subtitle")
-            .substring_before_last("."),
+            .replace("/file", "/subtitle"),
+            //.substring_before_last("."),
         ".srt"
     );
     log(src.as_str());
@@ -338,8 +338,7 @@ pub fn append_track(document: &Document, video: Arc<HtmlVideoElement>, src: &str
     let element = document.create_element("track").expect("track");
     let _ = element.set_attribute("default", "");
     let _ = element.set_attribute("kind", "captions");
-// src.as_str()
-    let _ = element.set_attribute("src", "/pkg/1.vtt");
+    let _ = element.set_attribute("src", src.as_str());
     let _ = video.append_child(&element);
 }
 

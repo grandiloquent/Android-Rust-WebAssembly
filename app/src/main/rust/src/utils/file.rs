@@ -1,11 +1,8 @@
 use std::fs;
 use crate::data::file_item::FileItem;
 
-pub fn get_file_list(query: String, default_path: &str) -> Vec<FileItem> {
-    let mut path = query;
-    if path.is_empty() {
-        path = default_path.to_string();
-    }
+pub fn get_file_list(path: String) -> Vec<FileItem> {
+
     match fs::read_dir(path) {
         Ok(v) => {
             v.map(|res| res.map(|e| {

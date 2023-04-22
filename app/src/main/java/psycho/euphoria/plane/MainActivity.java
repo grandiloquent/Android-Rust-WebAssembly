@@ -47,5 +47,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestStorageManagerPermission(this);
         String address = startServer(null, getAssets());
+        Log.e("B5aOx2", String.format("onCreate, %s", address));
     }
 }

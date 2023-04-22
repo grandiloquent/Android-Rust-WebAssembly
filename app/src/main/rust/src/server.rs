@@ -1,13 +1,13 @@
-use std::sync::Arc;
+use crate::{data, handler};
+use crate::data::cache::Cache;
+use crate::data::server::Server;
+use crate::handler::not_found::not_found;
 use ndk::asset::AssetManager;
 use rocket::{catchers, routes};
-use rocket::data::{Limits, ToByteUnit};
 use rocket::config::LogLevel;
-use crate::data::server::Server;
-use crate::handler;
+use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::Figment;
-use crate::data::cache::Cache;
-use crate::handler::not_found::not_found;
+use std::sync::Arc;
 
 fn build_limits() -> Limits {
     Limits::default()
@@ -28,10 +28,11 @@ fn build_figment(srv: Server) -> Figment {
 
 #[tokio::main]
 pub async fn run_server(srv: Server, ass: AssetManager) {
-    let  server = rocket::custom(build_figment(srv))
+    let server = rocket::custom(build_figment(srv))
+        .attach(data::cors::CORS)
         .manage(Arc::new(Cache::new(ass)))
         .mount("/",
-               routes![handler::file::file,handler::files::files,handler::html::file])
+               routes![handler::file::file,handler::files::files,handler::html::file,handler::subtitle::subtitle])
         .register("/", catchers![not_found]);
     server.launch().await;
 }

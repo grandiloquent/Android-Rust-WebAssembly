@@ -10,8 +10,24 @@ pub fn adjust_size(video: &HtmlVideoElement) {
     let vw = video.video_width();
 
     let window: web_sys::Window = web_sys::window().unwrap();
-    let w = window.inner_width().unwrap().as_f64().unwrap();
-    let h = window.inner_height().unwrap().as_f64().unwrap();
+    let w = {
+        let w1 = window.inner_width().unwrap().as_f64().unwrap();
+        let w2 = window.outer_width().unwrap().as_f64().unwrap();
+        if w1 < w2 {
+            w1
+        } else {
+            w2
+        }
+    };
+    let h = {
+        let h1=window.inner_height().unwrap().as_f64().unwrap();;
+        let h2=window.outer_height().unwrap().as_f64().unwrap();;
+        if h1<h2{
+            h1
+        }else {
+            h2
+        }
+    };
     log(format!("video: {}x{}\nwindow: {}x{}", vw, vh, w, h).as_str());
 
     let s = video.style();
