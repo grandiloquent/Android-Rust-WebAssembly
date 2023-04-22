@@ -1,0 +1,2 @@
+[WorkingDirectory] = C:\Users\Administrator\Desktop\Files\video
+[out-dir] = C:\Users\Administrator\Desktop\Files\video\pkg
