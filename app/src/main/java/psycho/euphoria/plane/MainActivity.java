@@ -1,6 +1,9 @@
 package psycho.euphoria.plane;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
+import android.os.Bundle;
+import android.util.Log;
 
 public class MainActivity extends Activity {
 
@@ -11,5 +14,12 @@ public class MainActivity extends Activity {
         System.loadLibrary("rust");
     }
 
-   
+    public static native String startServer(ServerService service, AssetManager assetManager, String host);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String address = startServer(null, getAssets(), "");
+        Log.e("B5aOx2", String.format("onCreate, %s", address));
+    }
 }
