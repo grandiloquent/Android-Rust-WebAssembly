@@ -1,4 +1,5 @@
 mod utils;
+mod seek_stream;
 
 use jni::JNIEnv;
 use jni::objects::{JObject, JString};
@@ -24,7 +25,7 @@ pub extern "C" fn Java_psycho_euphoria_plane_MainActivity_startServer<'a>(
         Some(h) => h.to_string(),
         None => "0.0.0.0".to_string(),
     };
-    let port = listen_available_port(3000).expect("listen_available_port");
+    let port = listen_available_port(3000).expect("Couldn't listen_available_port");
 
     let output = env
         .new_string(format!("{}:{}", host, port))
