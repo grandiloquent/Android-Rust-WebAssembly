@@ -31,7 +31,7 @@ pub async fn run_server(srv: Server, ass: AssetManager) {
     let  server = rocket::custom(build_figment(srv))
         .manage(Arc::new(Cache::new(ass)))
         .mount("/",
-               routes![handler::file::file,handler::html::file])
+               routes![handler::file::file,handler::files::files,handler::html::file])
         .register("/", catchers![not_found]);
     server.launch().await;
 }

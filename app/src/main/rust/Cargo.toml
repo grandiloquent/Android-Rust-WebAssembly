@@ -19,6 +19,7 @@ log-panics = "*"
 android_logger = "*"
 
 rocket = { version = "=0.5.0-rc.3", features = ["json"] }
+serde = "1.0.158"
 
 tree_magic = "0.2.3"
 rand = "0.8.5"
