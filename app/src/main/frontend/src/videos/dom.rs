@@ -1,7 +1,7 @@
 use web_sys::{Document, HtmlElement};
 
 pub fn render_item(document: &Document, parent: &HtmlElement, src: &str, title: &str, uri: &str) {
-    let href = format!("/video.html?uri={}", uri);
+    let href = format!("/video.html?url={}", uri);
     let media_item = document.create_element("div").expect("div");
     let _ = media_item.set_attribute("class", "media_item");
     let _ = parent.append_child(&media_item);

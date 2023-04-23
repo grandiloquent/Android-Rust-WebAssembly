@@ -8,7 +8,6 @@ use std::sync::MutexGuard;
 use rocket::serde::json::serde_json;
 use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
-
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct Video {
     pub id: i32,
