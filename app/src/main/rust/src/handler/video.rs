@@ -33,59 +33,75 @@ video.update_at
 }
 
 fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
-    conn.query_row(
-        "UPDATE video SET title = ?,file = ?,image = ?,source_type = ?,hidden = ? WHERE uri = ?",
-        params![video.title,
-video.file,
-video.image,
-video.source_type,
-video.hidden,
-video.update_at,video.uri],
-        |r| Ok(()),
-    )
-    /*
+    /*    conn.query_row(
+            "UPDATE video SET title = ?,file = ?,image = ?,source_type = ?,hidden = ?, update_at = ? WHERE uri = ?",
+            params![video.title,
+    video.file,
+    video.image,
+    video.source_type,
+    video.hidden,
+    video.update_at,video.uri],
+            |r| Ok(()),
+        )*/
+
     conn.query_row(
         "UPDATE video SET file = ?,update_at = ? WHERE uri = ?",
         params![video.uri, video.file, video.update_at],
         |r| Ok(()),
     )
-     */
+}
+
+fn read_from_database(url: &str, db: &MutexGuard<Connection>) -> Result<String, Box<dyn std::error::Error>> {
+    let v = query(db, &url)?;
+    if url.contains("xvideos.com") {
+        let now = get_epoch_secs();
+        if now - v.2 <= 3600 {
+            return Ok(serde_json::to_string(&VideoData {
+                title: v.0,
+                file: v.1,
+            }).unwrap());
+        }
+    }
+    Err("")?
+}
+
+async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::error::Error>> {
+    if url.contains("xvideos.com") {
+        Video::xvideos(&url, is_detail).await
+    } else {
+        Err("")?
+    }
 }
 
 #[get("/video/fetch?<url>")]
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
-    if url.contains("xvideos.com") {
-        let mut is_update = false;
-        if let Ok(v) = query(&db.0.lock().unwrap(), &url) {
-            let now = get_epoch_secs();
-            if now - v.2 <= 3600 {
-                return Ok(serde_json::to_string(&VideoData {
-                    title: v.0,
-                    file: v.1,
-                }).unwrap());
-            }
-            is_update = true;
-        }
-
-        let video = match Video::xvideos(&url, true).await
-        {
-            Ok(res) => {
-                res
-            }
-            Err(err) => {
-                return Err(Status::InternalServerError);
-            }
-        };
-        if is_update {
-            update(&db.0.lock().unwrap(), &video);
-        } else {
-            insert(&db.0.lock().unwrap(), &video);
-        }
-        Ok(serde_json::to_string(&VideoData {
-            title: video.title,
-            file: video.file,
-        }).unwrap())
+    let mut is_update = false;
+    if let Ok(v) = read_from_database(&url, &db.0.lock().unwrap()) {
+        return Ok(v);
     } else {
-        Err(Status::NotFound)
+        is_update = true;
     }
+    match create_video(&url, !is_update).await
+    {
+        Ok(video) => {
+            if is_update {
+                match update(&db.0.lock().unwrap(), &video) {
+                    Ok(_) => {}
+                    Err(err) => {
+                        log::error!("{}",err);
+                    }
+                };
+            } else {
+                insert(&db.0.lock().unwrap(), &video);
+            }
+            return Ok(serde_json::to_string(&VideoData {
+                title: video.title,
+                file: video.file,
+            }).unwrap());
+        }
+        Err(err) => {
+            return Err(Status::InternalServerError);
+        }
+    };
+    //log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
 }
