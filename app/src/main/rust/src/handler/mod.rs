@@ -1,5 +1,6 @@
-pub mod not_found;
 pub mod file;
-pub mod html;
 pub mod files;
+pub mod html;
+pub mod not_found;
 pub mod subtitle;
+pub mod xvideos;

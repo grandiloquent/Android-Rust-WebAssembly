@@ -17,7 +17,7 @@ use crate::utils::asset::get_asset_manager;
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn Java_psycho_euphoria_plane_MainActivity_startServer<'a>(
+pub extern "C" fn Java_psycho_euphoria_plane_ServerService_startServer<'a>(
     env: JNIEnv<'a>,
     _class: jni::objects::JClass<'a>,
     context: JObject<'a>,

@@ -7,7 +7,8 @@ use rocket::{catchers, routes};
 use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::Figment;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, RwLock};
+use rusqlite::Connection;
 
 fn build_limits() -> Limits {
     Limits::default()
@@ -26,13 +27,19 @@ fn build_figment(srv: Server) -> Figment {
         .merge((rocket::Config::LOG_LEVEL, LogLevel::Critical))
 }
 
+
+pub struct Database(pub Arc<Mutex<Connection>>);
+
 #[tokio::main]
 pub async fn run_server(srv: Server, ass: AssetManager) {
+    let conn = Connection::open_in_memory().expect("");
+
     let server = rocket::custom(build_figment(srv))
         .attach(data::cors::CORS)
         .manage(Arc::new(Cache::new(ass)))
+        .manage(Arc::new(Database(Arc::new(Mutex::new(conn)))))
         .mount("/",
-               routes![handler::file::file,handler::files::files,handler::html::file,handler::subtitle::subtitle])
+               routes![handler::file::file,handler::files::files,handler::html::file,handler::subtitle::subtitle,handler::xvideos::parse])
         .register("/", catchers![not_found]);
     server.launch().await;
 }

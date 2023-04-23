@@ -13,12 +13,6 @@ import android.util.Log;
 
 public class MainActivity extends Activity {
 
-    static {
-/*
-加载编译Rust代码后得到共享库。它完整的名称为librust.so
-  */
-        System.loadLibrary("rust");
-    }
 
     public static void requestStorageManagerPermission(Activity context) {
         // RequestStorageManagerPermission.requestStorageManagerPermission(MainActivity.this);
@@ -40,13 +34,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    public static native String startServer(ServerService service, AssetManager assetManager);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestStorageManagerPermission(this);
-        String address = startServer(null, getAssets());
-        Log.e("B5aOx2", String.format("onCreate, %s", address));
+        startService(new Intent(this, ServerService.class));
     }
 }
