@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -17,7 +19,13 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 public class ServerService extends Service {
     public static final String ACTION_DISMISS = "psycho.euphoria.plane.ServerService.ACTION_DISMISS";
@@ -48,6 +56,28 @@ public class ServerService extends Service {
         return new Notification.Action.Builder(null, "关闭", piDismiss).build();
     }
 
+    public static String getDeviceIP(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        try {
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            int rawIp = wifiInfo.getIpAddress();
+            if (rawIp == 0) {
+                Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
+                method.setAccessible(true);
+                boolean isWifiApEnabled = (boolean) method.invoke(wifiManager);
+                if (isWifiApEnabled)
+                    return getWifiApIpAddress();
+                else
+                    return "0.0.0.0";
+            }
+            //Log.e("B5aOx2", String.format("getDeviceIP, %s", wifiManager.getConnectionInfo().getSupplicantState().name()));
+            InetAddress inetAddress = intToInetAddress(rawIp);
+            return inetAddress.getHostAddress();
+        } catch (Exception e) {
+            return "0.0.0.0";
+        }
+    }
+
     public static PendingIntent getPendingIntentDismiss(Context context) {
         Intent dismissIntent = new Intent(context, ServerService.class);
         dismissIntent.setAction(ACTION_DISMISS);
@@ -67,6 +97,39 @@ public class ServerService extends Service {
             } catch (IOException ignored) {
                 start++;
             }
+        }
+    }
+
+    public static String getWifiApIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
+                    .hasMoreElements(); ) {
+                NetworkInterface intf = en.nextElement();
+                if (intf.getName().contains("wlan")) {
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
+                            .hasMoreElements(); ) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress()
+                                && (inetAddress.getAddress().length == 4)) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+        }
+        return null;
+    }
+
+    public static InetAddress intToInetAddress(int hostAddress) {
+        byte[] addressBytes = {(byte) (0xff & hostAddress),
+                (byte) (0xff & (hostAddress >> 8)),
+                (byte) (0xff & (hostAddress >> 16)),
+                (byte) (0xff & (hostAddress >> 24))};
+        try {
+            return InetAddress.getByAddress(addressBytes);
+        } catch (UnknownHostException e) {
+            throw new AssertionError();
         }
     }
 
@@ -90,6 +153,7 @@ public class ServerService extends Service {
             editor.putString("db", defaultDatabase);
         }
         editor.putString("port", Integer.toString(getUsablePort(3000)))
+                .putString("host",getDeviceIP(this))
                 .commit();
     }
 

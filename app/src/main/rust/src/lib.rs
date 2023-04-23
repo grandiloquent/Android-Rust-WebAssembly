@@ -30,10 +30,7 @@ pub extern "C" fn Java_psycho_euphoria_plane_ServerService_startServer<'a>(
             .with_max_level(log::LevelFilter::Trace)
             .with_tag("Rust"),
     );
-    let host = match get_local_ip_address(false) {
-        Some(h) => h.to_string(),
-        None => "0.0.0.0".to_string(),
-    };
+
 
     // TODO:
     // use the TcpListener.bind to find some available port
@@ -47,7 +44,7 @@ pub extern "C" fn Java_psycho_euphoria_plane_ServerService_startServer<'a>(
         let temp_dir = get_string(&env, context, "temp_dir");
         let port = get_string(&env, context, "port").parse::<u16>().unwrap();
         let db = get_string(&env, context, "db");
-
+        let host=get_string(&env, context, "host");
         let output = env
             .new_string(format!("{}:{}", host, port))
             .expect("Couldn't create java string!");
