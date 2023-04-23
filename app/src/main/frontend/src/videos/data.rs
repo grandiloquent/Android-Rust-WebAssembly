@@ -1,7 +1,8 @@
+use serde::__private::doc;
 use serde_json::Value;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
-use web_sys::{Request, RequestInit, Response};
+use web_sys::{Request, RequestInit, Response, HtmlElement};
 
 use crate::log;
 
@@ -26,12 +27,13 @@ pub fn render() {
         let obj: Value = serde_json::from_str(&videos).unwrap();
         let window = web_sys::window().expect("Couldn't get window");
         let document = window.document().expect("Couldn't get document");
-        let array = obj.as_array()
+        let array = obj.as_array().unwrap();
+        let parent = document.query_selector(".media-items").unwrap().unwrap().dyn_into::<HtmlElement>()
         .unwrap();
-
-       array.iter().for_each(|x| {
+        array.iter().for_each(|x| {
             render_item(
                 &document,
+                &parent,
                 x["image"].as_str().unwrap(),
                 x["title"].as_str().unwrap(),
                 x["uri"].as_str().unwrap(),

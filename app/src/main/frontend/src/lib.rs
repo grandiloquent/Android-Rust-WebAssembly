@@ -4,9 +4,9 @@ mod utils;
 mod videos;
 
 use send_wrapper::SendWrapper;
-use videos::data::render;
 use std::sync::Arc;
 use utils::query_selector;
+use videos::{data::render, dom::build_bottom_bar};
 
 use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
@@ -133,8 +133,7 @@ pub fn play(src: &str) {
 }
 #[wasm_bindgen]
 pub fn render_videos() {
-    let window = web_sys::window().expect("Couldn't get window");
-    let document = window.document().expect("Couldn't get document");
+    build_bottom_bar();
     render();
 }
 // wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Plane\app\src\main\assets
