@@ -34,10 +34,22 @@ video.update_at
 
 fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
     conn.query_row(
+        "UPDATE video SET title = ?,file = ?,image = ?,source_type = ?,hidden = ? WHERE uri = ?",
+        params![video.title,
+video.file,
+video.image,
+video.source_type,
+video.hidden,
+video.update_at,video.uri],
+        |r| Ok(()),
+    )
+    /*
+    conn.query_row(
         "UPDATE video SET file = ?,update_at = ? WHERE uri = ?",
         params![video.uri, video.file, video.update_at],
         |r| Ok(()),
     )
+     */
 }
 
 #[get("/video/fetch?<url>")]
@@ -55,7 +67,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             is_update = true;
         }
 
-        let video = match Video::xvideos(&url, is_update).await
+        let video = match Video::xvideos(&url, true).await
         {
             Ok(res) => {
                 res
