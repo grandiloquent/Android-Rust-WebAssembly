@@ -106,9 +106,9 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
         }
     };
     if is_update {
-        insert(&db.0.lock().unwrap(), &video);
-    } else {
         update(&db.0.lock().unwrap(), &video);
+    } else {
+        insert(&db.0.lock().unwrap(), &video);
     }
     Ok(video.file)
 }

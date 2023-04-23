@@ -26,12 +26,15 @@ pub fn render() {
         let obj: Value = serde_json::from_str(&videos).unwrap();
         let window = web_sys::window().expect("Couldn't get window");
         let document = window.document().expect("Couldn't get document");
-        obj.as_array().into_iter().for_each(|x| {
+        let array = obj.as_array()
+        .unwrap();
+
+       array.iter().for_each(|x| {
             render_item(
                 &document,
-                x[0]["image"].as_str().unwrap(),
-                x[0]["title"].as_str().unwrap(),
-                x[0]["uri"].as_str().unwrap(),
+                x["image"].as_str().unwrap(),
+                x["title"].as_str().unwrap(),
+                x["uri"].as_str().unwrap(),
             );
         });
     });
