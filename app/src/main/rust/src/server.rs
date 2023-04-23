@@ -1,3 +1,4 @@
+use std::path::Path;
 use crate::{data, handler};
 use crate::data::cache::Cache;
 use crate::data::server::Server;
@@ -8,6 +9,7 @@ use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::Figment;
 use std::sync::{Arc, Mutex, RwLock};
+use log::log;
 use rusqlite::Connection;
 
 fn build_limits() -> Limits {
@@ -30,9 +32,30 @@ fn build_figment(srv: Server) -> Figment {
 
 pub struct Database(pub Arc<Mutex<Connection>>);
 
+fn initialize_database(conn: &Connection) {
+    match conn.execute(r#"CREATE TABLE IF NOT EXISTS "video" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"uri"	TEXT NOT NULL,
+	"title"	TEXT,
+	"file"	TEXT,
+	"image"	TEXT,
+	"source_type"	INTEGER,
+	"hidden"	INTEGER,
+	"create_at"	INTEGER,
+	"update_at"	INTEGER,
+	PRIMARY KEY("id" AUTOINCREMENT)
+)"#, []) {
+        Ok(_) => {}
+        Err(err) => {
+            log::error!("Error {}",err);
+        }
+    }
+}
+
 #[tokio::main]
 pub async fn run_server(srv: Server, ass: AssetManager) {
-    let conn = Connection::open_in_memory().expect("");
+    let conn = Connection::open(srv.db.as_str()).expect("");
+    initialize_database(&conn);
 
     let server = rocket::custom(build_figment(srv))
         .attach(data::cors::CORS)

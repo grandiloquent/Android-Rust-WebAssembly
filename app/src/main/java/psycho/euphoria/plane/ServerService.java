@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.os.Environment;
 import android.os.IBinder;
@@ -15,6 +16,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 public class ServerService extends Service {
     public static final String ACTION_DISMISS = "psycho.euphoria.plane.ServerService.ACTION_DISMISS";
@@ -30,25 +33,15 @@ public class ServerService extends Service {
     SharedPreferences mSharedPreferences;
 
     public static void createNotification(ServerService context) {
-        Notification notification =
-                null;
+        Notification notification = null;
         PendingIntent piDismiss = getPendingIntentDismiss(context);
-        notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID)
-                .setContentTitle("本地服务器")
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .addAction(getAction(piDismiss))
-                .build();
+        notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("本地服务器").setSmallIcon(android.R.drawable.stat_sys_download).addAction(getAction(piDismiss)).build();
         context.startForeground(1, notification);
     }
 
     public static void createNotificationChannel(Context context) {
-        NotificationChannel notificationChannel =
-                new NotificationChannel(
-                        KP_NOTIFICATION_CHANNEL_ID,
-                        "本地服务器",
-                        NotificationManager.IMPORTANCE_LOW);
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
-                .createNotificationChannel(notificationChannel);
+        NotificationChannel notificationChannel = new NotificationChannel(KP_NOTIFICATION_CHANNEL_ID, "本地服务器", NotificationManager.IMPORTANCE_LOW);
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(notificationChannel);
     }
 
     public static Notification.Action getAction(PendingIntent piDismiss) {
@@ -65,11 +58,40 @@ public class ServerService extends Service {
         return mSharedPreferences.getString(key, "");
     }
 
+    public static int getUsablePort(int start) {
+        while (true) {
+            try {
+                ServerSocket serverPort = new ServerSocket(start);
+                serverPort.close();
+                return start;
+            } catch (IOException ignored) {
+                start++;
+            }
+        }
+    }
+
     public void setString(String key, String value) {
         mSharedPreferences.edit().putString(key, value).apply();
     }
 
     public static native String startServer(ServerService service, AssetManager assetManager);
+
+    private void initialSharedPreferences() {
+        File dir = new File(Environment.getExternalStorageDirectory(), ".plane");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        Editor editor = mSharedPreferences.edit();
+        if (mSharedPreferences.getString("temp_dir", null) == null) {
+            editor.putString("temp_dir", dir.getAbsolutePath());
+        }
+        if (mSharedPreferences.getString("db", null) == null) {
+            String defaultDatabase = new File(dir, "videos.db").getAbsolutePath();
+            editor.putString("db", defaultDatabase);
+        }
+        editor.putString("port", Integer.toString(getUsablePort(3000)))
+                .commit();
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -80,7 +102,8 @@ public class ServerService extends Service {
     public void onCreate() {
         super.onCreate();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        createNotificationChannel(this);
+        initialSharedPreferences();
+        createNotification(this);
         String address = startServer(this, getAssets());
         Log.e("B5aOx2", String.format("onCreate, %s", address));
     }

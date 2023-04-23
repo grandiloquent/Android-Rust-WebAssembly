@@ -14,6 +14,7 @@ use utils::net::get_local_ip_address;
 use crate::data::server::Server;
 use crate::server::run_server;
 use crate::utils::asset::get_asset_manager;
+use crate::utils::java::get_string;
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -39,20 +40,26 @@ pub extern "C" fn Java_psycho_euphoria_plane_ServerService_startServer<'a>(
     // would let the rocket bind fails
     // drop TcpListener early also don't work.
     //listen_available_port(5000).expect("Couldn't listen_available_port");
-    let port = 3000;
     let ass = get_asset_manager(env, asset_manager);
-    let output = env
-        .new_string(format!("{}:{}", host, port))
-        .expect("Couldn't create java string!");
-    log::error!("{}:{}", host,port);
 
-    std::thread::spawn(move || {
-        run_server(Server {
-            host,
-            port,
-            temp_dir: "/storage/emulated/0".to_string(),
-        }, ass);
-    });
 
-    output
+    unsafe {
+        let temp_dir = get_string(&env, context, "temp_dir");
+        let port = get_string(&env, context, "port").parse::<u16>().unwrap();
+        let db = get_string(&env, context, "db");
+
+        let output = env
+            .new_string(format!("{}:{}", host, port))
+            .expect("Couldn't create java string!");
+        std::thread::spawn(move || {
+            run_server(Server {
+                host,
+                port,
+                temp_dir,
+                db,
+            }, ass);
+        });
+
+        output
+    }
 }
