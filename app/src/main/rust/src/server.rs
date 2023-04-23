@@ -1,4 +1,3 @@
-use std::path::Path;
 use crate::{data, handler};
 use crate::data::cache::Cache;
 use crate::data::server::Server;
@@ -8,7 +7,7 @@ use rocket::{catchers, routes};
 use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::Figment;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, Mutex};
 use log::log;
 use rusqlite::Connection;
 
@@ -62,7 +61,7 @@ pub async fn run_server(srv: Server, ass: AssetManager) {
         .manage(Arc::new(Cache::new(ass)))
         .manage(Arc::new(Database(Arc::new(Mutex::new(conn)))))
         .mount("/",
-               routes![handler::file::file,handler::files::files,handler::html::file,handler::subtitle::subtitle,handler::xvideos::parse])
+               routes![handler::db::list,handler::file::file,handler::files::files,handler::html::file,handler::subtitle::subtitle,handler::xvideos::parse])
         .register("/", catchers![not_found]);
     server.launch().await;
 }

@@ -1,8 +1,10 @@
 mod elements;
 mod listener;
 mod utils;
+mod videos;
 
 use send_wrapper::SendWrapper;
+use videos::data::render;
 use std::sync::Arc;
 use utils::query_selector;
 
@@ -10,7 +12,6 @@ use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
     set_onprogress, set_ontimeupdate, set_progress_click,
 };
-use listener::Listner;
 use once_cell::sync::OnceCell;
 use wasm_bindgen::prelude::*;
 use web_sys::{HtmlElement, HtmlVideoElement};
@@ -130,7 +131,13 @@ pub fn play(src: &str) {
         None => {}
     }
 }
-// wasm-pack build --target web
+#[wasm_bindgen]
+pub fn render_videos() {
+    let window = web_sys::window().expect("Couldn't get window");
+    let document = window.document().expect("Couldn't get document");
+    render();
+}
+// wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Plane\app\src\main\assets
 
 /*
 https://github.com/rustwasm/wasm-bindgen

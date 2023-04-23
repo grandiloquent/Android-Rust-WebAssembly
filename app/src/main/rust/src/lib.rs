@@ -10,7 +10,6 @@ mod handler;
 
 use jni::JNIEnv;
 use jni::objects::{JObject, JString};
-use utils::net::get_local_ip_address;
 use crate::data::server::Server;
 use crate::server::run_server;
 use crate::utils::asset::get_asset_manager;
