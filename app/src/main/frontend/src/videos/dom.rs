@@ -10,6 +10,7 @@ use crate::log;
 pub fn render_item(
     document: &Document,
     parent: &HtmlElement,
+    bottom_sheet_container: Arc<HtmlElement>,
     id: i64,
     src: &str,
     title: &str,
@@ -81,6 +82,22 @@ pub fn render_item(
         .expect("path");
     let _ = path.set_attribute("d","M12,16.5c0.83,0,1.5,0.67,1.5,1.5s-0.67,1.5-1.5,1.5s-1.5-0.67-1.5-1.5S11.17,16.5,12,16.5z M10.5,12 c0,0.83,0.67,1.5,1.5,1.5s1.5-0.67,1.5-1.5s-0.67-1.5-1.5-1.5S10.5,11.17,10.5,12z M10.5,6c0,0.83,0.67,1.5,1.5,1.5 s1.5-0.67,1.5-1.5S12.83,4.5,12,4.5S10.5,5.17,10.5,6z");
     let _ = svg.append_child(&path);
+
+    // click
+    let bottom_sheet_container = Arc::new(bottom_sheet_container);
+
+    {
+        let bottom_sheet_container = bottom_sheet_container.clone();
+        let handler = Closure::wrap(Box::new(move || {
+            let _ = bottom_sheet_container.remove_attribute("style");
+            let _ = bottom_sheet_container.set_attribute("data-id", id.to_string().as_str());
+        }) as Box<dyn FnMut()>);
+        button
+            .dyn_into::<HtmlElement>()
+            .unwrap()
+            .set_onclick(handler.as_ref().dyn_ref());
+        handler.forget();
+    }
 }
 
 pub fn build_bottom_bar() {
