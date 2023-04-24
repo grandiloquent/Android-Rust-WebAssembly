@@ -14,8 +14,6 @@ async fn fetch_nine_porn<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<
     }
     let client = client.build()?;
     let ip4 = gen_ipv4();
-    // e
-    log::error!("fetch_nine_porn: {}", ip4);
     let mut client = client
         .get(url)
         .header("Accept-Language", "zh-CN,zh;q=0.9")

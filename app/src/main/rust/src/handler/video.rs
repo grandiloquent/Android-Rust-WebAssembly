@@ -119,7 +119,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
 #[get("/video/get?<url>")]
 pub async fn get(url: String) -> Status {
     log::error!("get: {}", url);
-    let video = Video::nine_porn(url.as_str(), true).await.unwrap();
+    let video = Video::twitter(url.as_str(), true).await.unwrap();
     log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
     Status::Ok
 }

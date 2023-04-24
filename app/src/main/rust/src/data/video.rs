@@ -2,6 +2,7 @@ use std::error::Error;
 use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
 use crate::extractor::nine_porn::extract_nine_porn;
+use crate::extractor::twitter::extract_twitter;
 use crate::extractor::xvideos::extract_xvideos;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -29,5 +30,21 @@ impl Video {
     }
     pub async fn nine_porn(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
         extract_nine_porn(url, is_detail).await
+    }
+    pub async fn twitter(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
+        extract_twitter(url, is_detail).await
+    }
+    pub fn new() -> Self{
+        Video {
+            id: 0,
+            uri:String::new(),
+            title: String::new(),
+            file:String::new(),
+            image: String::new(),
+            source_type: 0,
+            hidden: 0,
+            create_at: 0,
+            update_at: 0,
+        }
     }
 }
