@@ -1,19 +1,21 @@
-use std::error::Error;
 use crate::data::video::Video;
-use crate::utils::date::get_epoch_secs;
-use crate::utils::string::{parse_number, StringExt};
 use crate::extractor::config::Config;
+use crate::utils::date::get_epoch_secs;
 use crate::utils::net::gen_ipv4;
+use crate::utils::string::{parse_number, StringExt};
+use std::error::Error;
 
 async fn fetch_nine_porn<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
-    let proxy = reqwest::Proxy::http("http://127.0.0.1:10809")?;
-    let client = reqwest::Client::builder()
-        .user_agent(config.user_agent)
-        .proxy(proxy)
-        .build()?;
+    let mut client = reqwest::Client::builder().user_agent(config.user_agent);
+    if let Some(proxy) = config.proxy {
+        let proxy = reqwest::Proxy::http(proxy)?;
+        client = client.proxy(proxy);
+    }
+    let client = client.build()?;
     let ip4 = gen_ipv4();
 
-    let mut client = client.get(url)
+    let mut client = client
+        .get(url)
         .header("X-Forwarded-For", ip4.as_str())
         .header("X-Real-Ip", ip4.as_str());
     if let Some(v) = config.cookie {
@@ -33,7 +35,7 @@ fn find_nine_porn(s: &str) -> String {
 }
 
 pub async fn extract_nine_porn(url: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
-    let config = Config::new(None);
+    let config = Config::new(Some("http://127.0.0.1:10809"), None);
     let res = fetch_nine_porn(&url, &config).await?;
     // let mut file = res.substring_between("setVideoHLS('", "'");
     // let hls = fetch_nine_porn(&file).await?;
