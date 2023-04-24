@@ -15,12 +15,19 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+
+import static psycho.euphoria.plane.ServerService.START_SERVER_ACTION;
 
 public class MainActivity extends Activity {
 
+    private static final String USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1";
     WebView mWebView;
     BroadcastReceiver mBroadcastReceiver;
+    private String mUrl;
 
     public static void aroundFileUriExposedException() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -62,20 +69,31 @@ public class MainActivity extends Activity {
         }
     }
 
+    public static void setWebView(WebView webView) {
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setAppCacheEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setUserAgentString(USER_AGENT);
+    }
+
     private void initialize() {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.e("B5aOx2", String.format("onReceive, %s",
-                        intent.getStringExtra("address")));
+                mUrl = "http://" + intent.getStringExtra("address") + "/videos.html";
+                mWebView.loadUrl(mUrl);
             }
         };
+        Log.e("B5aOx2", String.format("initialize, %s", getPackageName() + ".server_started"));
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(getPackageName() + ".server_started");
+        intentFilter.addAction(START_SERVER_ACTION);
         registerReceiver(mBroadcastReceiver, intentFilter);
         aroundFileUriExposedException();
         requestStorageManagerPermission(this);
         mWebView = initializeWebView(this);
+        setWebView(mWebView);
         launchServer(this);
     }
 
@@ -102,5 +120,34 @@ public class MainActivity extends Activity {
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 1, 0, "刷新");
+        menu.add(0, 3, 0, "保存页面");
+        menu.add(0, 6, 0, "首页");
+        menu.add(0, 7, 0, "复制");
+        menu.add(0, 5, 0, "退出");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1:
+                mWebView.reload();
+                break;
+            case 3:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

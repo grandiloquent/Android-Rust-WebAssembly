@@ -15,7 +15,6 @@ import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.util.Enumeration;
 public class ServerService extends Service {
     public static final String ACTION_DISMISS = "psycho.euphoria.plane.ServerService.ACTION_DISMISS";
     public static final String KP_NOTIFICATION_CHANNEL_ID = "notification_channel";
+    public static final String START_SERVER_ACTION = "psycho.euphoria.plane.MainActivity.startServer";
 
     static {
 /*
@@ -169,7 +169,7 @@ public class ServerService extends Service {
         initialSharedPreferences();
         createNotification(this);
         String address = startServer(this, getAssets());
-        Intent intent = new Intent("psycho.euphoria.plane.MainActivity.startServer");
+        Intent intent = new Intent(START_SERVER_ACTION);
         intent.putExtra("address", address);
         sendBroadcast(intent);
     }
