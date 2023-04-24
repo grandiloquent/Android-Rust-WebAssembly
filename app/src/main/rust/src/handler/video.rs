@@ -3,21 +3,22 @@ use crate::server::Database;
 use crate::utils::date::get_epoch_secs;
 use crate::utils::string::StringExt;
 use rocket::http::Status;
+use rocket::serde::json::serde_json;
 use rocket::State;
 use rusqlite::{params, Connection};
+use serde::de::Unexpected::Str;
 use std::sync::Arc;
 use std::sync::MutexGuard;
-use rocket::serde::json::serde_json;
-use serde::de::Unexpected::Str;
-
-fn query(conn: &MutexGuard<Connection>, uri: &str) -> Result<(String, String, u64), rusqlite::Error> {
+fn query(
+    conn: &MutexGuard<Connection>,
+    uri: &str,
+) -> Result<(String, String, u64), rusqlite::Error> {
     conn.query_row(
         "SELECT title,file,update_at FROM video WHERE uri = ?",
         params![uri],
         |r| Ok((r.get(0).unwrap(), r.get(1).unwrap(), r.get(2).unwrap())),
     )
 }
-
 fn insert(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
     conn.query_row("INSERT INTO video (uri,title,file,image,source_type,hidden,create_at,update_at) VALUES (?,?,?,?,?,?,?,?)", params![
 video.uri,
@@ -32,7 +33,6 @@ video.update_at
         Ok(())
     })
 }
-
 fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
     /*    conn.query_row(
             "UPDATE video SET title = ?,file = ?,image = ?,source_type = ?,hidden = ?, update_at = ? WHERE uri = ?",
@@ -44,15 +44,16 @@ fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::
     video.update_at,video.uri],
             |r| Ok(()),
         )*/
-
     conn.query_row(
         "UPDATE video SET file = ?,update_at = ? WHERE uri = ?",
         params![video.uri, video.file, video.update_at],
         |r| Ok(()),
     )
 }
-
-fn read_from_database(url: &str, db: &MutexGuard<Connection>) -> Result<String, Box<dyn std::error::Error>> {
+fn read_from_database(
+    url: &str,
+    db: &MutexGuard<Connection>,
+) -> Result<String, Box<dyn std::error::Error>> {
     let v = query(db, &url)?;
     if url.contains("xvideos.com") {
         let now = get_epoch_secs();
@@ -60,21 +61,28 @@ fn read_from_database(url: &str, db: &MutexGuard<Connection>) -> Result<String, 
             return Ok(serde_json::to_string(&VideoData {
                 title: v.0,
                 file: v.1,
-            }).unwrap());
+            })
+            .unwrap());
         }
         return Ok(String::new());
+    } else if url.contains("91porn.com") {
+        return Ok(serde_json::to_string(&VideoData {
+            title: v.0,
+            file: v.1,
+        })
+        .unwrap());
     }
     Err("")?
 }
-
 async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::error::Error>> {
     if url.contains("xvideos.com") {
         Video::xvideos(&url, is_detail).await
+    } else if url.contains("91porn.com") {
+        Video::nine_porn(&url, is_detail).await
     } else {
         Err("")?
     }
 }
-
 #[get("/video/fetch?<url>")]
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
     let mut is_update = false;
@@ -85,14 +93,13 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             return Ok(v);
         }
     }
-    match create_video(&url, !is_update).await
-    {
+    match create_video(&url, !is_update).await {
         Ok(video) => {
             if is_update {
                 match update(&db.0.lock().unwrap(), &video) {
                     Ok(_) => {}
                     Err(err) => {
-                        log::error!("{}",err);
+                        log::error!("{}", err);
                     }
                 };
             } else {
@@ -101,11 +108,18 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             return Ok(serde_json::to_string(&VideoData {
                 title: video.title,
                 file: video.file,
-            }).unwrap());
+            })
+            .unwrap());
         }
         Err(err) => {
             return Err(Status::InternalServerError);
         }
     };
-    //log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
+}
+#[get("/video/get?<url>")]
+pub async fn get(url: String) -> Status {
+    log::error!("get: {}", url);
+    let video = Video::nine_porn(url.as_str(), true).await.unwrap();
+    log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
+    Status::Ok
 }
