@@ -7,7 +7,7 @@ use web_sys::{Request, RequestInit, Response, HtmlElement};
 use crate::log;
 
 use super::dom::render_item;
-
+ 
 async fn load_videos(base_uri: &str) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
     opts.method("GET");
@@ -34,6 +34,7 @@ pub fn render() {
             render_item(
                 &document,
                 &parent,
+                x["id"].as_i64().unwrap(),
                 x["image"].as_str().unwrap(),
                 x["title"].as_str().unwrap(),
                 x["uri"].as_str().unwrap(),

@@ -6,7 +6,7 @@ mod videos;
 use send_wrapper::SendWrapper;
 use std::sync::Arc;
 use utils::query_selector;
-use videos::{data::render, dom::{build_bottom_bar, build_top_bar}};
+use videos::{data::render, dom::{build_bottom_bar, build_top_bar, build_bottom_sheet}};
 
 use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
@@ -135,6 +135,7 @@ pub fn play(src: &str) {
 pub fn render_videos() {
     build_top_bar();
     build_bottom_bar();
+    build_bottom_sheet();
     render();
 }
 

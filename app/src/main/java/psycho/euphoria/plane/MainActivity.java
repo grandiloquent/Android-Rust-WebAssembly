@@ -2,6 +2,8 @@ package psycho.euphoria.plane;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -145,6 +147,8 @@ public class MainActivity extends Activity {
             case 6:
                 break;
             case 7:
+                ((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE)).
+                        setPrimaryClip(ClipData.newPlainText(null, mWebView.getUrl()));
                 break;
 
         }

@@ -1,9 +1,24 @@
-use web_sys::{Document, HtmlElement};
+use std::sync::Arc;
 
-pub fn render_item(document: &Document, parent: &HtmlElement, src: &str, title: &str, uri: &str) {
-    let href = format!("/video.html?url={}", uri);
+use urlencoding::encode;
+use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
+use wasm_bindgen_futures::{spawn_local, JsFuture};
+use web_sys::{Document, HtmlElement, Request, RequestInit, Response};
+
+use crate::log;
+
+pub fn render_item(
+    document: &Document,
+    parent: &HtmlElement,
+    id: i64,
+    src: &str,
+    title: &str,
+    uri: &str,
+) {
+    let href = format!("/video.html?url={}", encode(uri));
     let media_item = document.create_element("div").expect("div");
     let _ = media_item.set_attribute("class", "media_item");
+    let _ = media_item.set_attribute("data-id", id.to_string().as_str());
     let _ = parent.append_child(&media_item);
     let media_item_thumbnail_container = document.create_element("a").expect("a");
     let _ = media_item_thumbnail_container.set_attribute("class", "media_item_thumbnail_container");
@@ -190,7 +205,7 @@ pub fn build_top_bar() {
     let searchbox_input_title = document.create_element("input").expect("input");
     let _ = searchbox_input_title.set_attribute("class", "searchbox-input");
     let _ = searchbox_input_title.set_attribute("name", "search");
-    let _ = searchbox_input_title.set_attribute("placeholder", "Search YouTube");
+    let _ = searchbox_input_title.set_attribute("placeholder", "搜索");
     let _ = searchbox_input_title.set_attribute("autocomplete", "off");
     let _ = searchbox_input_title.set_attribute("autocorrect", "off");
     let _ = searchbox_input_title.set_attribute("spellcheck", "false");
@@ -225,4 +240,105 @@ pub fn build_top_bar() {
         .expect("path");
     let _ = path3.set_attribute("d","M20.87,20.17l-5.59-5.59C16.35,13.35,17,11.75,17,10c0-3.87-3.13-7-7-7s-7,3.13-7,7s3.13,7,7,7c1.75,0,3.35-0.65,4.58-1.71 l5.59,5.59L20.87,20.17z M10,16c-3.31,0-6-2.69-6-6s2.69-6,6-6s6,2.69,6,6S13.31,16,10,16z");
     let _ = svg2.append_child(&path3);
+}
+
+pub fn build_bottom_sheet() {
+    let window = web_sys::window().expect("global window does not exists");
+    let document = window.document().expect("expecting a document on window");
+    let bottom_sheet_container = document.create_element("div").expect("div");
+    let _ = bottom_sheet_container.set_attribute("class", "bottom-sheet-container");
+    let _ = bottom_sheet_container.set_attribute("style", "display: none");
+
+    let body = document
+        .body()
+        .expect("document expect to have have a body");
+    let _ = body.append_child(&bottom_sheet_container);
+    let bottom_sheet_overlay = document.create_element("div").expect("div");
+    let _ = bottom_sheet_overlay.set_attribute("class", "bottom-sheet-overlay");
+    let _ = bottom_sheet_container.append_child(&bottom_sheet_overlay);
+    let hidden_button = document.create_element("button").expect("button");
+    let _ = hidden_button.set_attribute("class", "hidden-button");
+    let _ = bottom_sheet_overlay.append_child(&hidden_button);
+    let bottom_sheet_layout = document.create_element("div").expect("div");
+    let _ = bottom_sheet_layout.set_attribute("class", "bottom-sheet-layout");
+    let _ = bottom_sheet_container.append_child(&bottom_sheet_layout);
+    let bottom_sheet_renderer_container = document.create_element("div").expect("div");
+    let _ =
+        bottom_sheet_renderer_container.set_attribute("class", "bottom-sheet-renderer-container");
+    let _ = bottom_sheet_layout.append_child(&bottom_sheet_renderer_container);
+    let bottom_sheet_layout_header_wrapper = document.create_element("div").expect("div");
+    let _ = bottom_sheet_layout_header_wrapper
+        .set_attribute("class", " bottom-sheet-layout-header-wrapper");
+    let _ = bottom_sheet_renderer_container.append_child(&bottom_sheet_layout_header_wrapper);
+    let bottom_sheet_drag_line = document.create_element("div").expect("div");
+    let _ = bottom_sheet_drag_line.set_attribute("class", "bottom-sheet-drag-line");
+    let _ = bottom_sheet_layout_header_wrapper.append_child(&bottom_sheet_drag_line);
+    let bottom_sheet_layout_header = document.create_element("div").expect("div");
+    let _ = bottom_sheet_layout_header.set_attribute("class", "bottom-sheet-layout-header");
+    let _ = bottom_sheet_layout_header_wrapper.append_child(&bottom_sheet_layout_header);
+    let bottom_sheet_layout_header_title_wrapper = document.create_element("div").expect("div");
+    let _ = bottom_sheet_layout_header_title_wrapper
+        .set_attribute("class", "bottom-sheet-layout-header-title-wrapper");
+    let _ = bottom_sheet_layout_header.append_child(&bottom_sheet_layout_header_title_wrapper);
+    let bottom_sheet_layout_content_wrapper = document.create_element("div").expect("div");
+    let _ = bottom_sheet_layout_content_wrapper
+        .set_attribute("class", "bottom-sheet-layout-content-wrapper");
+    let _ = bottom_sheet_renderer_container.append_child(&bottom_sheet_layout_content_wrapper);
+    let bottom_sheet_content = document.create_element("div").expect("div");
+    let _ = bottom_sheet_content.set_attribute("class", "bottom-sheet-content");
+    let _ = bottom_sheet_layout_content_wrapper.append_child(&bottom_sheet_content);
+    let bottom_sheet_container = Arc::new(bottom_sheet_container);
+    {
+        let menu_item = document.create_element("div").expect("div");
+        let _ = menu_item.set_attribute("class", "menu-item");
+        let _ = bottom_sheet_content.append_child(&menu_item);
+        let menu_item_button = document.create_element("button").expect("button");
+        let _ = menu_item_button.set_attribute("class", "menu-item-button");
+        let _ = menu_item_button.set_text_content(Some("删除"));
+        let _ = menu_item.append_child(&menu_item_button);
+
+        let bottom_sheet_container = bottom_sheet_container.clone();
+        let handler = Closure::wrap(Box::new(move || {
+            let _ = bottom_sheet_container.set_attribute("style", "display:none");
+            let id = match bottom_sheet_container.get_attribute("data-id") {
+                Some(id) => id,
+                None => {
+                    return;
+                }
+            };
+            spawn_local(async move {
+                let _ = delete_video("", id.as_str()).await;
+                let window = web_sys::window().expect("global window does not exists");
+                let _ = window.location().reload();
+            });
+        }) as Box<dyn FnMut()>);
+        menu_item
+            .dyn_into::<HtmlElement>()
+            .unwrap()
+            .set_onclick(handler.as_ref().dyn_ref());
+        handler.forget();
+    }
+    {
+        let bottom_sheet_container = bottom_sheet_container.clone();
+        let handler = Closure::wrap(Box::new(move || {
+            let _ = bottom_sheet_container.set_attribute("style", "display:none");
+        }) as Box<dyn FnMut()>);
+        bottom_sheet_overlay
+            .dyn_into::<HtmlElement>()
+            .unwrap()
+            .set_onclick(handler.as_ref().dyn_ref());
+        handler.forget();
+    }
+}
+
+async fn delete_video(base_uri: &str, id: &str) -> Result<JsValue, JsValue> {
+    let mut opts = RequestInit::new();
+    opts.method("GET");
+    let url = format!("{}/videos/hidden?id={}", base_uri, id);
+    let request = Request::new_with_str_and_init(&url, &opts)?;
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+    let resp: Response = resp_value.dyn_into().unwrap();
+    let json = JsFuture::from(resp.text()?).await?;
+    Ok(json)
 }

@@ -1,13 +1,13 @@
-use std::sync::{Arc};
-use rocket::http::Status;
-use rocket::State;
 use crate::server::Database;
 use crate::utils::string::StringExt;
-use rusqlite::{Connection, params};
-use std::sync::MutexGuard;
+use rocket::http::Status;
 use rocket::serde::json::serde_json;
 use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
+use rocket::State;
+use rusqlite::{params, Connection};
+use std::sync::Arc;
+use std::sync::MutexGuard;
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct Video {
     pub id: i32,
@@ -33,10 +33,21 @@ fn query(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::Error> {
     }
     Ok(v)
 }
+fn delete(conn: &MutexGuard<Connection>,id: i32) -> Result<usize, rusqlite::Error>{
+    conn.execute("DELETE FROM video WHERE id = ?", params![id])
+}
 #[get("/videos/list")]
-pub fn list( db: &State<Arc<Database>>) -> Result<String, Status> {
+pub fn list(db: &State<Arc<Database>>) -> Result<String, Status> {
     if let Ok(v) = query(&db.0.lock().unwrap()) {
         Ok(serde_json::to_string(&v).unwrap_or(String::new()))
+    } else {
+        Err(Status::NotFound)
+    }
+}
+#[get("/videos/delete?<id>")]
+pub fn delete_video(id: i32, db: &State<Arc<Database>>) -> Result<String, Status> {
+    if let Ok(v) = delete(&db.0.lock().unwrap(),id) {
+        Ok("Success".to_string())
     } else {
         Err(Status::NotFound)
     }
