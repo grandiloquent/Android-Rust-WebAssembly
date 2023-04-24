@@ -36,6 +36,9 @@ fn query(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::Error> {
 fn delete(conn: &MutexGuard<Connection>,id: i32) -> Result<usize, rusqlite::Error>{
     conn.execute("DELETE FROM video WHERE id = ?", params![id])
 }
+fn hidden(conn: &MutexGuard<Connection>,id: i32) -> Result<usize, rusqlite::Error>{
+    conn.execute("UPDATE video SET hiddne = 1 WHERE id = ?", params![id])
+}
 #[get("/videos/list")]
 pub fn list(db: &State<Arc<Database>>) -> Result<String, Status> {
     if let Ok(v) = query(&db.0.lock().unwrap()) {
@@ -47,6 +50,14 @@ pub fn list(db: &State<Arc<Database>>) -> Result<String, Status> {
 #[get("/videos/delete?<id>")]
 pub fn delete_video(id: i32, db: &State<Arc<Database>>) -> Result<String, Status> {
     if let Ok(v) = delete(&db.0.lock().unwrap(),id) {
+        Ok("Success".to_string())
+    } else {
+        Err(Status::NotFound)
+    }
+}
+#[get("/videos/hidden?<id>")]
+pub fn hidden_video(id: i32, db: &State<Arc<Database>>) -> Result<String, Status> {
+    if let Ok(v) = hidden(&db.0.lock().unwrap(),id) {
         Ok("Success".to_string())
     } else {
         Err(Status::NotFound)

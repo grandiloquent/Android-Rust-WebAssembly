@@ -23,8 +23,16 @@ async fn load_videos(base_uri: &str) -> Result<JsValue, JsValue> {
 }
 
 pub fn render() {
+    // log
+
     spawn_local(async move {
-        let videos = load_videos("http://192.168.8.55:3000").await;
+        let base_uri = if web_sys::window().unwrap().location().host().unwrap() == "127.0.0.1:5500"
+        {
+            "http://192.168.8.55:3000"
+        } else {
+            ""
+        };
+        let videos = load_videos(base_uri).await;
         let videos = videos.unwrap().as_string().unwrap();
         let obj: Value = serde_json::from_str(&videos).unwrap();
         let window = web_sys::window().expect("Couldn't get window");
@@ -36,12 +44,14 @@ pub fn render() {
             .unwrap()
             .dyn_into::<HtmlElement>()
             .unwrap();
-        let bottom_sheet_container = Arc::new(document
-            .query_selector(".bottom-sheet-container")
-            .unwrap()
-            .unwrap()
-            .dyn_into::<HtmlElement>()
-            .unwrap());
+        let bottom_sheet_container = Arc::new(
+            document
+                .query_selector(".bottom-sheet-container")
+                .unwrap()
+                .unwrap()
+                .dyn_into::<HtmlElement>()
+                .unwrap(),
+        );
         array.iter().for_each(|x| {
             render_item(
                 &document,
@@ -55,4 +65,3 @@ pub fn render() {
         });
     });
 }
-
