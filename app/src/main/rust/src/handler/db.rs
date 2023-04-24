@@ -37,7 +37,7 @@ fn delete(conn: &MutexGuard<Connection>,id: i32) -> Result<usize, rusqlite::Erro
     conn.execute("DELETE FROM video WHERE id = ?", params![id])
 }
 fn hidden(conn: &MutexGuard<Connection>,id: i32) -> Result<usize, rusqlite::Error>{
-    conn.execute("UPDATE video SET hiddne = 1 WHERE id = ?", params![id])
+    conn.execute("UPDATE video SET hidden = 1 WHERE id = ?", params![id])
 }
 #[get("/videos/list")]
 pub fn list(db: &State<Arc<Database>>) -> Result<String, Status> {
