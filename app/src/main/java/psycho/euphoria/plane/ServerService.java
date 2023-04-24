@@ -153,7 +153,7 @@ public class ServerService extends Service {
             editor.putString("db", defaultDatabase);
         }
         editor.putString("port", Integer.toString(getUsablePort(3000)))
-                .putString("host",getDeviceIP(this))
+                .putString("host", getDeviceIP(this))
                 .commit();
     }
 
@@ -169,6 +169,8 @@ public class ServerService extends Service {
         initialSharedPreferences();
         createNotification(this);
         String address = startServer(this, getAssets());
-        Log.e("B5aOx2", String.format("onCreate, %s", address));
+        Intent intent = new Intent("psycho.euphoria.plane.MainActivity.startServer");
+        intent.putExtra("address", address);
+        sendBroadcast(intent);
     }
 }

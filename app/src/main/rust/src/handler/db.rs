@@ -18,7 +18,7 @@ struct Video {
     pub update_at: u64,
 }
 fn query(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::Error> {
-    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video ORDER BY update_at DESC")?;
+    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video WHERE hidden = 0 ORDER BY update_at DESC ")?;
     let mut rows = query.query([])?;
     let mut v = Vec::<Video>::new();
     while let Some(row) = rows.next()? {

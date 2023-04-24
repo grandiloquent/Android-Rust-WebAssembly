@@ -8,6 +8,7 @@ use rusqlite::{params, Connection};
 use std::sync::Arc;
 use std::sync::MutexGuard;
 use rocket::serde::json::serde_json;
+use serde::de::Unexpected::Str;
 
 fn query(conn: &MutexGuard<Connection>, uri: &str) -> Result<(String, String, u64), rusqlite::Error> {
     conn.query_row(
@@ -61,6 +62,7 @@ fn read_from_database(url: &str, db: &MutexGuard<Connection>) -> Result<String, 
                 file: v.1,
             }).unwrap());
         }
+        return Ok(String::new());
     }
     Err("")?
 }
@@ -77,9 +79,11 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
     let mut is_update = false;
     if let Ok(v) = read_from_database(&url, &db.0.lock().unwrap()) {
-        return Ok(v);
-    } else {
-        is_update = true;
+        if v.is_empty() {
+            is_update = true;
+        } else {
+            return Ok(v);
+        }
     }
     match create_video(&url, !is_update).await
     {
