@@ -1,4 +1,5 @@
 use std::net::{IpAddr, TcpListener, UdpSocket};
+use rand::Rng;
 
 pub fn listen_available_port(start: u16) -> Option<u16> {
     (start..9000).find(|port| port_is_available(*port))
@@ -44,4 +45,14 @@ pub fn get_local_ip_address(is_ipv6: bool) -> Option<IpAddr> {
         Ok(addr) => Some(addr.ip()),
         Err(_) => None,
     }
+}
+
+pub fn gen_ipv4() -> String {
+    let mut rnd = rand::thread_rng();
+    let a = rnd.gen_range(1..255);
+    let b = rnd.gen_range(1..255);
+    let c = rnd.gen_range(1..255);
+    let d = rnd.gen_range(1..255);
+
+    return format!("{}.{}.{}.{}", a, b, c, d);
 }

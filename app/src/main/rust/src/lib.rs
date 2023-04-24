@@ -6,6 +6,7 @@ mod seek_stream;
 mod server;
 mod data;
 mod handler;
+mod extractor;
 
 
 use jni::JNIEnv;
