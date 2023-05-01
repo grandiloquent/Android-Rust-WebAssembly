@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, rc::Rc};
 
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlVideoElement};
@@ -47,14 +47,14 @@ pub fn adjust_size(video: &HtmlVideoElement) {
     let _ = s.set_property("left", format!("{}px", (w - width) / 2.0).as_str());
 }
 
-pub fn query_selector(parent: &HtmlElement, selector: &str) -> Arc<HtmlElement> {
+pub fn query_selector(parent: &HtmlElement, selector: &str) -> Rc<HtmlElement> {
     let progress_bar_loaded = parent
         .query_selector(selector)
         .unwrap()
         .unwrap()
         .dyn_into::<HtmlElement>()
         .unwrap();
-    Arc::new(progress_bar_loaded)
+    Rc::new(progress_bar_loaded)
 }
 pub trait StringExt {
     /// Returns the string before the search string.

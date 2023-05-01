@@ -21,7 +21,7 @@ async fn fetch_ma_hua<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<Str
     client.send().await?.text().await
 }
 pub async fn extract_ma_hua(url: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
-    let config = Config::new(Some("http://127.0.0.1:10809"), None);
+    let config = Config::new(Some("http://127.0.0.1:10809"), Some("PHPSESSID=ug5qdi2pd3kcc53m5a6b2jqm9i; kt_ips=43.163.192.239; kt_tcookie=1; kt_is_visited=1; kt_qparams=id%3D14294%26dir%3D300022"));
     let res = match fetch_ma_hua(&url, &config).await {
         Ok(res) => res,
         Err(err) => {
@@ -30,7 +30,7 @@ pub async fn extract_ma_hua(url: &str, is_detail: bool) -> Result<Video, Box<dyn
             String::new()
         }
     };
-    let file = res.substring_between("<a href=\"", "?download=true");
+    let file =format!("https://www.mahua11.com/get_file/{}",res.substring_between("<a href=\"https://www.mahua11.com/get_file/", "\"")); 
     let uri = url.to_string();
     if is_detail {
         let title = res

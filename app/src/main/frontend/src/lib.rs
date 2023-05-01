@@ -1,12 +1,21 @@
 mod elements;
 mod listener;
 mod utils;
+mod video;
 mod videos;
 
 use send_wrapper::SendWrapper;
-use std::sync::Arc;
+use std::{
+    rc::Rc,
+    sync::{atomic::AtomicI32, Arc},
+};
 use utils::query_selector;
-use videos::{data::render, dom::{build_bottom_bar,  build_bottom_sheet}, search::initialize_search};
+use video::{handler::{bind_video, bind_onplay}, seek::bind_fast_forward};
+use videos::{
+    data::render,
+    dom::{build_bottom_bar, build_bottom_sheet},
+    search::initialize_search,
+};
 
 use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
@@ -33,7 +42,9 @@ extern "C" {
     pub fn log(s: &str);
 }
 
-static HANLDER: once_cell::sync::OnceCell<SendWrapper<Closure<dyn FnMut()>>> = OnceCell::new();
+pub static HANLDER: once_cell::sync::OnceCell<SendWrapper<Closure<dyn FnMut()>>> = OnceCell::new();
+pub static HANDLE: AtomicI32 = AtomicI32::new(0);
+
 macro_rules! set_handler {
     (($element:ident,$name:ident) -> $handler:expr) => {
         let handler = Closure::wrap(Box::new($handler) as Box<dyn FnMut()>);
@@ -48,9 +59,9 @@ pub fn start(src: &str) {
     let window = web_sys::window().expect("Couldn't get window");
     let document = window.document().expect("Couldn't get document");
     let middle = append_middle(&document);
-    let middle = Arc::new(middle);
+    let middle = Rc::new(middle);
     let bottom = append_bottom(&document);
-    let bottom = Arc::new(bottom);
+    let bottom = Rc::new(bottom);
     let button = query_selector(&middle, ".play");
     let first = query_selector(&bottom, ".first");
     let second = query_selector(&bottom, ".second");
@@ -59,7 +70,7 @@ pub fn start(src: &str) {
     let progress_bar_playhead_wrapper = query_selector(&bottom, ".progress_bar_playhead_wrapper");
     let progress_bar_line = query_selector(&bottom, ".progress_bar_line");
     let video = get_video(&document).expect("Couldn't get video");
-    let v = Arc::new(video.clone());
+    let v = Rc::new(video.clone());
 
     {
         let v = v.clone();
@@ -81,7 +92,7 @@ pub fn start(src: &str) {
     video.set_onerror(Some(onerror.as_ref().unchecked_ref()));
     onerror.forget();
 
-    set_onplay(button.clone(), v.clone());
+    bind_onplay(button.clone(), v.clone());
     set_onpause(button.clone(), v.clone());
     set_ondurationchange(second.clone(), v.clone());
     set_ontimeupdate(
@@ -93,7 +104,7 @@ pub fn start(src: &str) {
     set_onprogress(progress_bar_loaded.clone(), v.clone());
     set_progress_click(progress_bar_line, v.clone());
 
-    on_video_click(middle.clone(), bottom.clone(), &video);
+    bind_video(middle.clone(), bottom.clone(), &video);
 
     HANLDER.get_or_init(|| {
         SendWrapper::new(Closure::wrap(Box::new(move || {
@@ -104,43 +115,12 @@ pub fn start(src: &str) {
 
     video.set_src(src);
     append_track(&document, v.clone(), src);
-    let playback_speed = document
-    .query_selector(".playback_speed")
-    .unwrap()
-    .unwrap()
-    .dyn_into::<HtmlElement>()
-    .unwrap();
 
-    let video = document
-        .query_selector("video")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<HtmlVideoElement>()
-        .unwrap();
-    let handler = Closure::wrap(Box::new(move || {
-        log(format!("{}", video.current_time() + 10f64).as_str());
-        video.set_current_time(video.current_time() + 10f64);
-    }) as Box<dyn FnMut()>);
-    playback_speed.set_onclick(handler.as_ref().dyn_ref());
-    handler.forget();
+    let _ = bind_fast_forward(&document, v.clone());
     //video.remove_event_listener_with_callback("play", onplay.as_ref().unchecked_ref());
     //setTimeout()
 }
-fn set_onplay(button: Arc<HtmlElement>, video: Arc<HtmlVideoElement>) {
-    let button = button.clone();
-    let onplay = Closure::wrap(Box::new(move || {
-        let window = web_sys::window().expect("Couldn't get window");
-        window.clear_timeout();
-        let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
-            HANLDER.get().unwrap().as_ref().unchecked_ref(),
-            5000,
-        );
-        let path = button.query_selector("path").unwrap().unwrap();
-        let _ = path.set_attribute("d", "M9,19H7V5H9ZM17,5H15V19h2Z");
-    }) as Box<dyn FnMut()>);
-    video.set_onplay(Some(onplay.as_ref().unchecked_ref()));
-    onplay.forget();
-}
+
 #[wasm_bindgen]
 pub fn play(src: &str) {
     match INSTANCE.get() {
@@ -165,17 +145,3 @@ https://github.com/rustwasm/wasm-bindgen
 
  */
 // onclick
-fn on_video_click(middle: Arc<HtmlElement>, bottom: Arc<HtmlElement>, element: &HtmlElement) {
-    let handler = Closure::wrap(Box::new(move || {
-        let _ = middle.style().set_property("display", "flex");
-        let _ = bottom.style().set_property("display", "flex");
-        let window = web_sys::window().expect("Couldn't get window");
-        window.clear_timeout();
-        let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
-            HANLDER.get().unwrap().as_ref().unchecked_ref(),
-            5000,
-        );
-    }) as Box<dyn FnMut()>);
-    element.set_onclick(handler.as_ref().dyn_ref());
-    handler.forget();
-}

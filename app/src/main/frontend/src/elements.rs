@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::sync::Arc;
 
 use crate::log;
@@ -240,7 +241,7 @@ pub fn get_video(document: &Document) -> Result<HtmlVideoElement, JsValue> {
     // C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\web-sys-0.3.61\src\features
     Ok(video)
 }
-pub fn set_ondurationchange(second: Arc<HtmlElement>, video: Arc<HtmlVideoElement>) {
+pub fn set_ondurationchange(second: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
     let v = video.clone();
     let ondurationchange = Closure::wrap(Box::new(move || {
         let duration = v.duration() as i32;
@@ -259,7 +260,7 @@ pub fn set_ondurationchange(second: Arc<HtmlElement>, video: Arc<HtmlVideoElemen
     video.set_ondurationchange(Some(ondurationchange.as_ref().unchecked_ref()));
     ondurationchange.forget();
 }
-pub fn set_onpause(button: Arc<HtmlElement>, video: Arc<HtmlVideoElement>) {
+pub fn set_onpause(button: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
     let button = button.clone();
     let onpause = Closure::wrap(Box::new(move || {
         let path = button.query_selector("path").unwrap().unwrap();
@@ -269,7 +270,7 @@ pub fn set_onpause(button: Arc<HtmlElement>, video: Arc<HtmlVideoElement>) {
     onpause.forget();
 }
 
-pub fn set_onprogress(progress_bar_loaded: Arc<HtmlElement>, video: Arc<HtmlVideoElement>) {
+pub fn set_onprogress(progress_bar_loaded: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
     let v = video.clone();
     let onprogress = Closure::wrap(Box::new(move || {
         let duration = v.duration();
@@ -284,10 +285,10 @@ pub fn set_onprogress(progress_bar_loaded: Arc<HtmlElement>, video: Arc<HtmlVide
     onprogress.forget();
 }
 pub fn set_ontimeupdate(
-    first: Arc<HtmlElement>,
-    progress_bar_played: Arc<HtmlElement>,
-    progress_bar_playhead_wrapper: Arc<HtmlElement>,
-    video: Arc<HtmlVideoElement>,
+    first: Rc<HtmlElement>,
+    progress_bar_played: Rc<HtmlElement>,
+    progress_bar_playhead_wrapper: Rc<HtmlElement>,
+    video: Rc<HtmlVideoElement>,
 ) {
     let v = video.clone();
     let ontimeupdate = Closure::wrap(Box::new(move || {
@@ -317,7 +318,7 @@ pub fn set_ontimeupdate(
     video.set_ontimeupdate(Some(ontimeupdate.as_ref().unchecked_ref()));
     ontimeupdate.forget();
 }
-pub fn set_progress_click(element: Arc<HtmlElement>, video: Arc<HtmlVideoElement>) {
+pub fn set_progress_click(element: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
     let e = element.clone();
     let handler = Closure::wrap(Box::new(move |event: MouseEvent| {
         let offset_x = event.offset_x() as f64;
@@ -327,7 +328,7 @@ pub fn set_progress_click(element: Arc<HtmlElement>, video: Arc<HtmlVideoElement
     element.set_onclick(handler.as_ref().dyn_ref());
     handler.forget();
 }
-pub fn append_track(document: &Document, video: Arc<HtmlVideoElement>, src: &str) {
+pub fn append_track(document: &Document, video: Rc<HtmlVideoElement>, src: &str) {
     let src = format!(
         "{}{}",
         src.to_string().replace("/file", "/subtitle"),

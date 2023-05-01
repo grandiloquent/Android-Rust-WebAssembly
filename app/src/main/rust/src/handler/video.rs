@@ -75,7 +75,7 @@ fn read_from_database(
     db: &MutexGuard<Connection>,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let v = query(db, &url)?;
-    if url.contains("xvideos.com") {
+    if url.contains("xvideos.com")|| url.contains("mahua11.com") {
         let now = get_epoch_secs();
         if now - v.3 <= 3600 {
             return Ok(serde_json::to_string(&VideoData {
@@ -86,7 +86,7 @@ fn read_from_database(
             .unwrap());
         }
         return Ok(String::new());
-    } else if url.contains("91porn.com") || url.contains("eroticmv.com") || url.contains("mahua11.com") {
+    } else if url.contains("91porn.com") || url.contains("eroticmv.com")  {
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
             subtitle: v.1,
