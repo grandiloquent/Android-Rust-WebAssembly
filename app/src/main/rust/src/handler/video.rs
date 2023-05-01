@@ -58,6 +58,18 @@ fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::
         |r| Ok(()),
     )
 }
+fn update_views(conn: &MutexGuard<Connection>, uri: &str) -> Result<(), rusqlite::Error> {
+    let r: (u32, Option<u32>) = conn.query_row(
+        "select id,views from video WHERE uri = ?",
+        params![uri],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    )?;
+    conn.execute(
+        "UPDATE video SET views = ? WHERE id = ?",
+        params![r.1.unwrap_or(0) + 1, r.0],
+    );
+    Ok(())
+}
 fn read_from_database(
     url: &str,
     db: &MutexGuard<Connection>,
@@ -95,8 +107,10 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
         Err("")?
     }
 }
+
 #[get("/video/fetch?<url>")]
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
+    update_views(&db.0.lock().unwrap(), url.as_str());
     let mut is_update = false;
     if let Ok(v) = read_from_database(&url, &db.0.lock().unwrap()) {
         if v.is_empty() {
@@ -107,7 +121,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     }
     match create_video(&url, !is_update).await {
         Ok(video) => {
-            log::error!("{}",url);
+            log::error!("{}", url);
             if is_update {
                 match update(&db.0.lock().unwrap(), &video) {
                     Ok(_) => {}
@@ -118,7 +132,6 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             } else {
                 insert(&db.0.lock().unwrap(), &video);
             }
-            log::error!("{}",url);
             return Ok(serde_json::to_string(&VideoData {
                 title: video.title,
                 subtitle: Some(video.subtitle),

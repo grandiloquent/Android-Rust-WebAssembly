@@ -35,3 +35,9 @@ reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"
 rusqlite = { version = "0.27.0", features = ["bundled"] }
 
 urlencoding = "2.1.2"
+
+# [profile.release]
+# codegen-units = 1
+# lto = "fat"
+# opt-level = 3
+# panic = "abort"

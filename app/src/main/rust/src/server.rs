@@ -1,15 +1,15 @@
-use crate::{data, handler};
 use crate::data::cache::Cache;
 use crate::data::server::Server;
 use crate::handler::not_found::not_found;
+use crate::{data, handler};
+use log::log;
 use ndk::asset::AssetManager;
-use rocket::{catchers, routes};
 use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::Figment;
-use std::sync::{Arc, Mutex};
-use log::log;
+use rocket::{catchers, routes};
 use rusqlite::Connection;
+use std::sync::{Arc, Mutex};
 
 fn build_limits() -> Limits {
     Limits::default()
@@ -28,7 +28,6 @@ fn build_figment(srv: Server) -> Figment {
         .merge((rocket::Config::LOG_LEVEL, LogLevel::Critical))
 }
 
-
 pub struct Database(pub Arc<Mutex<Connection>>);
 
 fn initialize_database(conn: &Connection) {
@@ -41,45 +40,44 @@ fn initialize_database(conn: &Connection) {
 	"file"	TEXT,
 	"image"	TEXT,
 	"source_type"	INTEGER,
+    "views"	INTEGER,
 	"hidden"	INTEGER,
 	"create_at"	INTEGER,
 	"update_at"	INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 )"#,
-
-/*
-ALTER TABLE video RENAME TO temp_video;
-CREATE TABLE "video" (
-	"id"	INTEGER NOT NULL UNIQUE,
-	"uri"	TEXT NOT NULL,
-	"title"	TEXT,
-	"subtitle"	TEXT,
-	"file"	TEXT,
-	"image"	TEXT,
-	"source_type"	INTEGER,
-	"hidden"	INTEGER,
-	"create_at"	INTEGER,
-	"update_at"	INTEGER,
-	PRIMARY KEY("id" AUTOINCREMENT)
-);
-
-INSERT INTO video(id,uri,title,file,image,source_type,hidden,create_at,update_at)
-SELECT id,uri,title,file,image,source_type,hidden,create_at,update_at
-FROM temp_video;
-
-DROP TABLE temp_video;
- */
-
- []) {
+        [],
+    ) {
         Ok(_) => {}
         Err(err) => {
-            log::error!("Error {}",err);
+            log::error!("Error {}", err);
         }
     };
-    conn.execute(r#"CREATE UNIQUE INDEX IF NOT EXISTS "url_idx_unique" ON "video" (
-        "url"	ASC
-    );"#,[]);
-    
+    // conn.execute(
+    //     r#"CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);"#,
+    //     [],
+    // );
+//     r#"ALTER TABLE video RENAME TO temp_video;
+
+// CREATE TABLE "video" ("id" INTEGER NOT NULL UNIQUE,"uri" TEXT NOT NULL,"title" TEXT,"subtitle" TEXT,"file" TEXT,"image" TEXT,"source_type" INTEGER,"views" INTEGER,"hidden" INTEGER,"create_at" INTEGER,"update_at" INTEGER,PRIMARY KEY("id" AUTOINCREMENT));
+
+// INSERT INTO video(id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) SELECT id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at FROM temp_video;
+
+// DROP TABLE temp_video;"#.split("\n")
+// .into_iter()
+// .for_each(|l|{
+// if l.is_empty() {
+// return;
+// }
+// conn.execute(
+//     l,
+//     [],
+// );
+// });
+// conn.execute_batch(r#"BEGIN;
+// delete from video where id in (select id from (SELECT id, COUNT(*) c FROM video GROUP BY uri HAVING c > 1));
+// CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);
+// END;"#);
 }
 
 #[tokio::main]
@@ -91,8 +89,20 @@ pub async fn run_server(srv: Server, ass: AssetManager) {
         .attach(data::cors::CORS)
         .manage(Arc::new(Cache::new(ass)))
         .manage(Arc::new(Database(Arc::new(Mutex::new(conn)))))
-        .mount("/",
-               routes![handler::db::list,handler::db::delete_video,handler::db::hidden_video,handler::file::file,handler::files::files,handler::html::file,handler::subtitle::subtitle,handler::video::parse,handler::video::get])
+        .mount(
+            "/",
+            routes![
+                handler::db::list,
+                handler::db::delete_video,
+                handler::db::hidden_video,
+                handler::file::file,
+                handler::files::files,
+                handler::html::file,
+                handler::subtitle::subtitle,
+                handler::video::parse,
+                handler::video::get
+            ],
+        )
         .register("/", catchers![not_found]);
     server.launch().await;
 }
