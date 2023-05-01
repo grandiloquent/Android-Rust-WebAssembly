@@ -86,7 +86,7 @@ fn read_from_database(
             .unwrap());
         }
         return Ok(String::new());
-    } else if url.contains("91porn.com") || url.contains("eroticmv.com") {
+    } else if url.contains("91porn.com") || url.contains("eroticmv.com") || url.contains("mahua11.com") {
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
             subtitle: v.1,
@@ -103,6 +103,8 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
         Video::nine_porn(&url, is_detail).await
     } else if url.contains("eroticmv.com") {
         Video::erotic_mv(&url, is_detail).await
+    } else if url.contains("mahua11.com") {
+        Video::ma_hua(&url, is_detail).await
     } else {
         Err("")?
     }
