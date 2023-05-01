@@ -185,6 +185,28 @@ pub fn build_bottom_sheet() {
         let _ = create_menu_item(
             &document,
             &bottom_sheet_content,
+            "打开",
+            Closure::wrap(Box::new(move || {
+                let _ = hidden_element(&bottom_sheet_container);
+                let id = match bottom_sheet_container.get_attribute("data-id") {
+                    Some(id) => id,
+                    None => {
+                        return;
+                    }
+                };
+                spawn_local(async move {
+                    let _ = delete_video("", id.as_str()).await;
+                    let window = web_sys::window().expect("global window does not exists");
+                    let _ = window.location().reload();
+                });
+            }) as Box<dyn FnMut()>),
+        );
+    }
+    {
+        let bottom_sheet_container = bottom_sheet_container.clone();
+        let _ = create_menu_item(
+            &document,
+            &bottom_sheet_content,
             "删除",
             Closure::wrap(Box::new(move || {
                 let _ = hidden_element(&bottom_sheet_container);
