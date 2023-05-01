@@ -14,6 +14,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.Process;
 import android.preference.PreferenceManager;
 
 import java.io.File;
@@ -167,10 +168,22 @@ public class ServerService extends Service {
         super.onCreate();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         initialSharedPreferences();
+        createNotificationChannel(this);
         createNotification(this);
         String address = startServer(this, getAssets());
         Intent intent = new Intent(START_SERVER_ACTION);
         intent.putExtra("address", address);
         sendBroadcast(intent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_DISMISS)) {
+            stopForeground(true);
+            stopSelf();
+            Process.killProcess(Process.myPid());
+            return START_NOT_STICKY;
+        }
+        return super.onStartCommand(intent, flags, startId);
     }
 }

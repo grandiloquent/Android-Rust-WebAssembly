@@ -12,17 +12,25 @@ use std::sync::MutexGuard;
 fn query(
     conn: &MutexGuard<Connection>,
     uri: &str,
-) -> Result<(String, String, u64), rusqlite::Error> {
+) -> Result<(String, Option<String>, String, u64), rusqlite::Error> {
     conn.query_row(
-        "SELECT title,file,update_at FROM video WHERE uri = ?",
+        "SELECT title,subtitle,file,update_at FROM video WHERE uri = ?",
         params![uri],
-        |r| Ok((r.get(0).unwrap(), r.get(1).unwrap(), r.get(2).unwrap())),
+        |r| {
+            Ok((
+                r.get(0).unwrap(),
+                r.get(1).unwrap(),
+                r.get(2).unwrap(),
+                r.get(3).unwrap(),
+            ))
+        },
     )
 }
 fn insert(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
-    conn.query_row("INSERT INTO video (uri,title,file,image,source_type,hidden,create_at,update_at) VALUES (?,?,?,?,?,?,?,?)", params![
+    conn.query_row("INSERT INTO video (uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) VALUES (?,?,?,?,?,?,?,?,?)", params![
 video.uri,
 video.title,
+video.subtitle,
 video.file,
 video.image,
 video.source_type,
@@ -57,18 +65,20 @@ fn read_from_database(
     let v = query(db, &url)?;
     if url.contains("xvideos.com") {
         let now = get_epoch_secs();
-        if now - v.2 <= 3600 {
+        if now - v.3 <= 3600 {
             return Ok(serde_json::to_string(&VideoData {
                 title: v.0,
-                file: v.1,
+                subtitle: v.1,
+                file: v.2,
             })
             .unwrap());
         }
         return Ok(String::new());
-    } else if url.contains("91porn.com") {
+    } else if url.contains("91porn.com") || url.contains("eroticmv.com") {
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
-            file: v.1,
+            subtitle: v.1,
+            file: v.2,
         })
         .unwrap());
     }
@@ -79,6 +89,8 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
         Video::xvideos(&url, is_detail).await
     } else if url.contains("91porn.com") {
         Video::nine_porn(&url, is_detail).await
+    } else if url.contains("eroticmv.com") {
+        Video::erotic_mv(&url, is_detail).await
     } else {
         Err("")?
     }
@@ -95,6 +107,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     }
     match create_video(&url, !is_update).await {
         Ok(video) => {
+            log::error!("{}",url);
             if is_update {
                 match update(&db.0.lock().unwrap(), &video) {
                     Ok(_) => {}
@@ -105,8 +118,10 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             } else {
                 insert(&db.0.lock().unwrap(), &video);
             }
+            log::error!("{}",url);
             return Ok(serde_json::to_string(&VideoData {
                 title: video.title,
+                subtitle: Some(video.subtitle),
                 file: video.file,
             })
             .unwrap());
@@ -119,7 +134,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
 #[get("/video/get?<url>")]
 pub async fn get(url: String) -> Status {
     log::error!("get: {}", url);
-    let video = Video::twitter(url.as_str(), true).await.unwrap();
+    let video = Video::erotic_mv(url.as_str(), true).await.unwrap();
     log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
     Status::Ok
 }

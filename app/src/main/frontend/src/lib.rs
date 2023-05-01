@@ -6,7 +6,7 @@ mod videos;
 use send_wrapper::SendWrapper;
 use std::sync::Arc;
 use utils::query_selector;
-use videos::{data::render, dom::{build_bottom_bar, build_top_bar, build_bottom_sheet}};
+use videos::{data::render, dom::{build_bottom_bar,  build_bottom_sheet}, search::initialize_search};
 
 use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
@@ -104,6 +104,25 @@ pub fn start(src: &str) {
 
     video.set_src(src);
     append_track(&document, v.clone(), src);
+    let playback_speed = document
+    .query_selector(".playback_speed")
+    .unwrap()
+    .unwrap()
+    .dyn_into::<HtmlElement>()
+    .unwrap();
+
+    let video = document
+        .query_selector("video")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<HtmlVideoElement>()
+        .unwrap();
+    let handler = Closure::wrap(Box::new(move || {
+        log(format!("{}", video.current_time() + 10f64).as_str());
+        video.set_current_time(video.current_time() + 10f64);
+    }) as Box<dyn FnMut()>);
+    playback_speed.set_onclick(handler.as_ref().dyn_ref());
+    handler.forget();
     //video.remove_event_listener_with_callback("play", onplay.as_ref().unchecked_ref());
     //setTimeout()
 }
@@ -133,7 +152,7 @@ pub fn play(src: &str) {
 }
 #[wasm_bindgen]
 pub fn render_videos() {
-    build_top_bar();
+    initialize_search();
     build_bottom_bar();
     build_bottom_sheet();
     render();

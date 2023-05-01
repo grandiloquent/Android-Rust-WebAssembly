@@ -6,7 +6,7 @@ use crate::utils::string::{parse_number, StringExt};
 use std::error::Error;
 use urlencoding::decode;
 
-async fn fetch_nine_porn<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
+async fn fetch_erotic_mv<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
     let mut client = reqwest::Client::builder().user_agent(config.user_agent);
     if let Some(proxy) = config.proxy {
         let proxy = reqwest::Proxy::http(proxy)?;
@@ -14,40 +14,31 @@ async fn fetch_nine_porn<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<
     }
     let client = client.build()?;
     let ip4 = gen_ipv4();
-    let mut client = client
-        .get(url)
-        .header("Accept-Language", "zh-CN,zh;q=0.9")
-        .header("X-Forwarded-For", ip4.as_str())
-        .header("X-Real-Ip", ip4.as_str());
+    let mut client = client.get(url);
     if let Some(v) = config.cookie {
         client = client.header("Cookie", v);
     }
     client.send().await?.text().await
 }
-pub async fn extract_nine_porn(url: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
-    let config = Config::new(
-        Some("http://127.0.0.1:10809"),
-        Some("CLIPSHARE=0av6iij67j68ml4v90tr2oj96k"),
-    );
-    let res = match fetch_nine_porn(&url, &config).await {
+pub async fn extract_erotic_mv(url: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
+    let config = Config::new(Some("http://127.0.0.1:10809"), None);
+    let res = match fetch_erotic_mv(&url, &config).await {
         Ok(res) => res,
         Err(err) => {
             // e
-            log::error!("extract_nine_porn: {}", err);
+            log::error!("extract_erotic_mv: {}", err);
             String::new()
         }
     };
-    let mut file = res.substring_between("document.write(strencode2(\"", "\"");
-    file = decode(&file)
-        .unwrap()
-        .to_string()
-        .substring_between("src='", "'");
-
-    let uri = format_address(url);
+    let file = res.substring_between("<source src=\"", "\"");
+    let uri = url.to_string();
     if is_detail {
-        let title = res.substring_between("<title>", "\n").trim().to_string();
-        let image = res.substring_between("poster=\"", "\"");
-        let source_type = 2;
+        let title = res
+            .substring_between("<title>Watch ", " Download - Erotic Movies</title>")
+            .trim()
+            .to_string();
+        let image = res.substring_between("poster-preload\" src=\"", "\"");
+        let source_type = 4;
         let hidden = 0;
         let create_at = get_epoch_secs();
         let update_at = get_epoch_secs();
@@ -56,7 +47,7 @@ pub async fn extract_nine_porn(url: &str, is_detail: bool) -> Result<Video, Box<
             uri,
             title,
             subtitle: String::new(),
-            file: file,
+            file,
             image,
             source_type,
             hidden,
@@ -77,20 +68,4 @@ pub async fn extract_nine_porn(url: &str, is_detail: bool) -> Result<Video, Box<
             update_at: get_epoch_secs(),
         })
     }
-}
-
-fn format_address(s: &str) -> String {
-    let start = match s.rfind("?") {
-        Some(v) => &s[0..v],
-        None => s,
-    };
-    let end = match s.find("viewkey=") {
-        Some(v) => &s[v..s.len()],
-        None => s,
-    };
-    let end = match end.find("&") {
-        Some(v) => &end[0..v],
-        None => end,
-    };
-    format!("{}?{}", start, end)
 }

@@ -32,10 +32,12 @@ fn build_figment(srv: Server) -> Figment {
 pub struct Database(pub Arc<Mutex<Connection>>);
 
 fn initialize_database(conn: &Connection) {
-    match conn.execute(r#"CREATE TABLE IF NOT EXISTS "video" (
+    match conn.execute(
+        r#"CREATE TABLE IF NOT EXISTS "video" (
 	"id"	INTEGER NOT NULL UNIQUE,
 	"uri"	TEXT NOT NULL,
 	"title"	TEXT,
+    "subtitle"	TEXT,
 	"file"	TEXT,
 	"image"	TEXT,
 	"source_type"	INTEGER,
@@ -43,12 +45,41 @@ fn initialize_database(conn: &Connection) {
 	"create_at"	INTEGER,
 	"update_at"	INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
-)"#, []) {
+)"#,
+
+/*
+ALTER TABLE video RENAME TO temp_video;
+CREATE TABLE "video" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"uri"	TEXT NOT NULL,
+	"title"	TEXT,
+	"subtitle"	TEXT,
+	"file"	TEXT,
+	"image"	TEXT,
+	"source_type"	INTEGER,
+	"hidden"	INTEGER,
+	"create_at"	INTEGER,
+	"update_at"	INTEGER,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+INSERT INTO video(id,uri,title,file,image,source_type,hidden,create_at,update_at)
+SELECT id,uri,title,file,image,source_type,hidden,create_at,update_at
+FROM temp_video;
+
+DROP TABLE temp_video;
+ */
+
+ []) {
         Ok(_) => {}
         Err(err) => {
             log::error!("Error {}",err);
         }
-    }
+    };
+    conn.execute(r#"CREATE UNIQUE INDEX IF NOT EXISTS "url_idx_unique" ON "video" (
+        "url"	ASC
+    );"#,[]);
+    
 }
 
 #[tokio::main]

@@ -77,6 +77,8 @@ pub fn append_bottom(document: &Document) -> HtmlElement {
     append_fullscreen(document, &wrapper);
     let progress_bar_line = build_progress_bar_line(document);
     let _ = div.append_child(&progress_bar_line);
+
+   
     div
 }
 pub fn append_middle(document: &Document) -> HtmlElement {
@@ -328,9 +330,8 @@ pub fn set_progress_click(element: Arc<HtmlElement>, video: Arc<HtmlVideoElement
 pub fn append_track(document: &Document, video: Arc<HtmlVideoElement>, src: &str) {
     let src = format!(
         "{}{}",
-        src.to_string()
-            .replace("/file", "/subtitle"),
-            //.substring_before_last("."),
+        src.to_string().replace("/file", "/subtitle"),
+        //.substring_before_last("."),
         ".srt"
     );
     log(src.as_str());

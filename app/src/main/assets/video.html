@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频</title>
+    <style>
+        html {
+            background-color: #000;
+            font-size: 10px;
+            font-family: Roboto, Arial, sans-serif;
+            height: 100%;
+        }
+
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            font-size: 1.2rem;
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        .button {
+            display: inline-block;
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            color: #fff;
+            padding: 8px;
+        }
+    </style>
+    <script src="https://fastly.jsdelivr.net/npm/hls.js@1"></script>
+</head>
+
+<body>
+    <script type="module">
+        import init, { start, play } from "./pkg/frontend.js";
+
+        // /storage/emulated/0/.others
+
+
+        let baseUri = window.location.host === "127.0.0.1:5500" ? "http://192.168.8.55:3000" : "";
+        async function load() {
+            const path = new URL(window.location).searchParams.get("path")
+                || '/storage/emulated/0/.others';
+            const res = await fetch(`${baseUri}/files?path=${path}`);
+            return res.json();
+        }
+        // getJson
+        async function getUrl(url) {
+            const res = await fetch(`${baseUri}/video/fetch?url=${encodeURIComponent(url)}`);
+            return res.json();
+        }
+        async function render() {
+            const searchParams = new URL(window.location).searchParams;
+            const url = searchParams.get("url");
+            if (url) {
+                const video = await getUrl(url);
+                let src = video.file;
+                init().then(() => {
+                    start(src);
+                    const video = document.querySelector('video');
+                    if (!video.canPlayType('application/vnd.apple.mpegurl') && Hls.isSupported()) {
+                        var hls = new Hls();
+                        hls.loadSource(src);
+                        hls.attachMedia(
+                            video
+                        );
+                    }
+                    
+                })
+            }
+            // const data = await load();
+            // data.forEach(x => {
+            //     if (x.path.indexOf("Young") !== -1
+            //     && x.path.indexOf(".srt") === -1) {
+            //         init().then(() => {
+            //             start(`${baseUri}/file?path=${encodeURIComponent(x.path)}`);
+            //         })
+            //     }
+            // });
+        }
+        async function initialize() {
+            await render();
+            // querySelector
+
+
+        }
+
+        async function readText() {
+            let strings;
+            if (typeof NativeAndroid !== 'undefined') {
+                strings = NativeAndroid.readText()
+            } else {
+                strings = await navigator.clipboard.readText()
+            }
+            return strings
+        }
+        initialize();
+    </script>
+</body>
+
+</html>
