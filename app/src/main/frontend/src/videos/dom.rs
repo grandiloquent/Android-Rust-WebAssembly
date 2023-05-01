@@ -1,4 +1,4 @@
-use std::{rc::Rc, sync::Arc};
+use std::{fmt::format, rc::Rc, sync::Arc};
 
 use urlencoding::encode;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
@@ -8,7 +8,7 @@ use web_sys::{Document, HtmlElement, Request, RequestInit, Response};
 use crate::log;
 
 use super::{
-    elements::{create_bottom_tab_item, create_menu_item},
+    elements::{create_bottom_tab_item, create_menu_item, open_page_with_id},
     utils::{bind_click_event, hidden_element},
 };
 
@@ -195,9 +195,7 @@ pub fn build_bottom_sheet() {
                     }
                 };
                 spawn_local(async move {
-                    let _ = delete_video("", id.as_str()).await;
-                    let window = web_sys::window().expect("global window does not exists");
-                    let _ = window.location().reload();
+                    let _ = open_page_with_id(id.as_str()).await;
                 });
             }) as Box<dyn FnMut()>),
         );

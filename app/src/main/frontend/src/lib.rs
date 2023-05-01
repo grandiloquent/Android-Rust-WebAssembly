@@ -138,7 +138,7 @@ pub fn render_videos() {
     render();
 }
 
-// wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Plane\app\src\main\assets
+// wasm-pack build --target web --out-dir C:\Users\psycho\Desktop\file\Plane\app\src\main\assets\pkg
 
 /*
 https://github.com/rustwasm/wasm-bindgen

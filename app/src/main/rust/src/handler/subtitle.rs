@@ -18,7 +18,7 @@ fn delete_cue_settings(line: &str) -> String {
     }
     output.trim().to_string()
 }
-pub fn transform(input_path: &Path)
+fn transform(input_path: &Path)
                  -> String
 {
     log::error!("{}", input_path.to_str().unwrap());
@@ -80,7 +80,7 @@ fn process_line(time_line: String) -> String
 }
 /// Processes a &str of the form 'hh:mm:ss.sss'
 /// into the total number of seconds as f64.
-pub fn get_secs(time_string: &str) -> f64 {
+fn get_secs(time_string: &str) -> f64 {
     time_string.rsplit(":")
         // can't panic since time_string is validated by regex:
         .map(|t| t.parse::<f64>().unwrap())

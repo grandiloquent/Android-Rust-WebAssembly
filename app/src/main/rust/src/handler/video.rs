@@ -2,6 +2,7 @@ use crate::data::video::{Video, VideoData};
 use crate::server::Database;
 use crate::utils::date::get_epoch_secs;
 use crate::utils::string::StringExt;
+use jni::descriptors::Desc;
 use rocket::http::Status;
 use rocket::serde::json::serde_json;
 use rocket::State;
@@ -75,7 +76,7 @@ fn read_from_database(
     db: &MutexGuard<Connection>,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let v = query(db, &url)?;
-    if url.contains("xvideos.com")|| url.contains("mahua11.com") {
+    if url.contains("xvideos.com") || url.contains("mahua11.com") {
         let now = get_epoch_secs();
         if now - v.3 <= 3600 {
             return Ok(serde_json::to_string(&VideoData {
@@ -86,7 +87,7 @@ fn read_from_database(
             .unwrap());
         }
         return Ok(String::new());
-    } else if url.contains("91porn.com") || url.contains("eroticmv.com")  {
+    } else if url.contains("91porn.com") || url.contains("eroticmv.com") {
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
             subtitle: v.1,
@@ -152,4 +153,21 @@ pub async fn get(url: String) -> Status {
     let video = Video::erotic_mv(url.as_str(), true).await.unwrap();
     log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
     Status::Ok
+}
+#[get("/video/url?<id>")]
+pub fn get_url(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> {
+    match db
+        .0.lock()
+        .unwrap()
+        .query_row(
+            "select uri from video where id = ?",
+            params![id],
+            |row| match row.get(0) {
+                Ok(value) => Ok(value),
+                Err(err) => Err(err),
+            },
+        ) {
+        Ok(value) => Ok(value),
+        Err(_) => Err(Status::InternalServerError),
+    }
 }
