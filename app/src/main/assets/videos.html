@@ -691,7 +691,7 @@
         import init, { render_videos } from "./pkg/frontend.js";
         init().then(() => {
             render_videos();
-            document.querySelector('.bar-item-renderer').
+            document.querySelector('.tab-item-add').
                 addEventListener('click', async evt => {
                     await fetch(`/video/fetch?url=${encodeURIComponent(await readText())}`);
                     location.reload();
