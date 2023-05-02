@@ -1,10 +1,8 @@
 use std::rc::Rc;
-use std::sync::Arc;
 
 use crate::log;
-use crate::utils::{adjust_size, StringExt};
+use crate::utils::{adjust_size};
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
-use web_sys::MouseEvent;
 use web_sys::{Document, Element, HtmlElement, HtmlVideoElement};
 pub fn append_bottom(document: &Document) -> HtmlElement {
     let div = build_div(document);
@@ -318,16 +316,7 @@ pub fn set_ontimeupdate(
     video.set_ontimeupdate(Some(ontimeupdate.as_ref().unchecked_ref()));
     ontimeupdate.forget();
 }
-pub fn set_progress_click(element: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
-    let e = element.clone();
-    let handler = Closure::wrap(Box::new(move |event: MouseEvent| {
-        let offset_x = event.offset_x() as f64;
-        let width = e.get_bounding_client_rect().width();
-        video.set_current_time(offset_x / width * video.duration());
-    }) as Box<dyn FnMut(_)>);
-    element.set_onclick(handler.as_ref().dyn_ref());
-    handler.forget();
-}
+
 pub fn append_track(document: &Document, video: Rc<HtmlVideoElement>, src: &str) {
     let src = format!(
         "{}{}",

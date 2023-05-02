@@ -1,4 +1,4 @@
-use std::{sync::Arc, rc::Rc};
+use std::{rc::Rc};
 
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlVideoElement};
@@ -20,8 +20,8 @@ pub fn adjust_size(video: &HtmlVideoElement) {
         }
     };
     let h = {
-        let h1=window.inner_height().unwrap().as_f64().unwrap();;
-        let h2=window.outer_height().unwrap().as_f64().unwrap();;
+        let h1=window.inner_height().unwrap().as_f64().unwrap();
+        let h2=window.outer_height().unwrap().as_f64().unwrap();
         if h1<h2{
             h1
         }else {

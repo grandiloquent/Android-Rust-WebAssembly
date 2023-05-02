@@ -31,7 +31,7 @@ fn initialize_search_button(document: &Document, share: Arc<HtmlElement>) -> Res
     };
     let element = match element.dyn_into::<HtmlElement>() {
         Ok(element) => element,
-        Err(err) => {
+        Err(_err) => {
             return Err("")?;
         }
     };
@@ -59,7 +59,7 @@ fn initialize_search_back(document: &Document, share: Arc<HtmlElement>) -> Resul
     };
     let element = match element.dyn_into::<HtmlElement>() {
         Ok(element) => element,
-        Err(err) => {
+        Err(_err) => {
             return Err("")?;
         }
     };

@@ -5,12 +5,12 @@ mod video;
 mod videos;
 
 use send_wrapper::SendWrapper;
-use std::{
-    rc::Rc,
-    sync::{atomic::AtomicI32, Arc},
-};
+use std::{rc::Rc, sync::atomic::AtomicI32};
 use utils::query_selector;
-use video::{handler::{bind_video, bind_onplay}, seek::bind_fast_forward};
+use video::{
+    handler::{bind_onplay, bind_video},
+    seek::{bind_fast_forward, set_progress_click},
+};
 use videos::{
     data::render,
     dom::{build_bottom_bar, build_bottom_sheet},
@@ -19,11 +19,11 @@ use videos::{
 
 use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
-    set_onprogress, set_ontimeupdate, set_progress_click,
+    set_onprogress, set_ontimeupdate,
 };
 use once_cell::sync::OnceCell;
 use wasm_bindgen::prelude::*;
-use web_sys::{HtmlElement, HtmlVideoElement};
+use web_sys::HtmlVideoElement;
 
 #[wasm_bindgen]
 extern "C" {
@@ -45,13 +45,13 @@ extern "C" {
 pub static HANLDER: once_cell::sync::OnceCell<SendWrapper<Closure<dyn FnMut()>>> = OnceCell::new();
 pub static HANDLE: AtomicI32 = AtomicI32::new(0);
 
-macro_rules! set_handler {
-    (($element:ident,$name:ident) -> $handler:expr) => {
-        let handler = Closure::wrap(Box::new($handler) as Box<dyn FnMut()>);
-        $element.$name(Some(handler.as_ref().unchecked_ref()));
-        handler.forget();
-    };
-}
+// macro_rules! set_handler {
+//     (($element:ident,$name:ident) -> $handler:expr) => {
+//         let handler = Closure::wrap(Box::new($handler) as Box<dyn FnMut()>);
+//         $element.$name(Some(handler.as_ref().unchecked_ref()));
+//         handler.forget();
+//     };
+// }
 static INSTANCE: once_cell::sync::OnceCell<SendWrapper<HtmlVideoElement>> = OnceCell::new();
 
 #[wasm_bindgen]
@@ -68,7 +68,7 @@ pub fn start(src: &str) {
     let progress_bar_loaded = query_selector(&bottom, ".progress_bar_loaded");
     let progress_bar_played = query_selector(&bottom, ".progress_bar_played");
     let progress_bar_playhead_wrapper = query_selector(&bottom, ".progress_bar_playhead_wrapper");
-    let progress_bar_line = query_selector(&bottom, ".progress_bar_line");
+
     let video = get_video(&document).expect("Couldn't get video");
     let v = Rc::new(video.clone());
 
@@ -102,7 +102,15 @@ pub fn start(src: &str) {
         v.clone(),
     );
     set_onprogress(progress_bar_loaded.clone(), v.clone());
-    set_progress_click(progress_bar_line, v.clone());
+    set_progress_click(
+        Rc::new(
+            bottom
+                .query_selector(".progress_bar_line")
+                .unwrap()
+                .unwrap(),
+        ),
+        v.clone(),
+    );
 
     bind_video(middle.clone(), bottom.clone(), &video);
 

@@ -1,11 +1,10 @@
-use std::{fmt::format, rc::Rc, sync::Arc};
+use std::{ rc::Rc, sync::Arc};
 
 use urlencoding::encode;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{Document, HtmlElement, Request, RequestInit, Response};
 
-use crate::log;
 
 use super::{
     elements::{create_bottom_tab_item, create_menu_item, open_page_with_id},
