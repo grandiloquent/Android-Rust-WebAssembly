@@ -1,4 +1,4 @@
-use std::{rc::Rc};
+use std::rc::Rc;
 
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlVideoElement};
@@ -20,11 +20,11 @@ pub fn adjust_size(video: &HtmlVideoElement) {
         }
     };
     let h = {
-        let h1=window.inner_height().unwrap().as_f64().unwrap();
-        let h2=window.outer_height().unwrap().as_f64().unwrap();
-        if h1<h2{
+        let h1 = window.inner_height().unwrap().as_f64().unwrap();
+        let h2 = window.outer_height().unwrap().as_f64().unwrap();
+        if h1 < h2 {
             h1
-        }else {
+        } else {
             h2
         }
     };
@@ -123,5 +123,13 @@ impl StringExt for String {
             }
         };
         answer
+    }
+}
+
+pub fn get_base_uri() -> String {
+    if web_sys::window().unwrap().location().host().unwrap() == "127.0.0.1:5500" {
+        "http://192.168.0.109:3000".to_string()
+    } else {
+        String::new()
     }
 }

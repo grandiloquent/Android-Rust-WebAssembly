@@ -30,7 +30,7 @@ features = [
   "Location",
   "Event",
   "KeyboardEvent",
-  "HtmlTextAreaElement",
+  "HtmlInputElement",
   "Navigator",
   "Storage",
   "HtmlVideoElement",
