@@ -128,11 +128,20 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "刷新");
-        menu.add(0, 3, 0, "保存页面");
+        menu.add(0, 3, 0, "打开");
         menu.add(0, 6, 0, "首页");
         menu.add(0, 7, 0, "复制");
         menu.add(0, 5, 0, "退出");
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private static String getText(Context context) {
+        ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = clipboardManager.getPrimaryClip();
+        if (clipData.getItemCount() == 0) return null;
+        CharSequence s = clipData.getItemAt(0).getText();
+        if (s == null) return null;
+        return s.toString();
     }
 
     @Override
@@ -142,6 +151,7 @@ public class MainActivity extends Activity {
                 mWebView.reload();
                 break;
             case 3:
+                mWebView.loadUrl(getText(this));
                 break;
             case 5:
                 break;

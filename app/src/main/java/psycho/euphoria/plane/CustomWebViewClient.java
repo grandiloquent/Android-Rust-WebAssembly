@@ -1,9 +1,12 @@
 package psycho.euphoria.plane;
 
+import android.util.Log;
+import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 public class CustomWebViewClient extends WebViewClient {
 
@@ -17,12 +20,14 @@ public class CustomWebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        //  String cookie;
-//        if (url.startsWith("https://www.xvideos.com/") && (cookie = CookieManager.getInstance().getCookie(url)) != null) {
-//            mContext.setString(MainActivity.KEY_XVIDEOS_COOKIE, cookie);
-//        }
-        //view.evaluateJavascript(mJsCode, null);
+        String cookie;
+        if (url.contains("/vodplay/") && (cookie = CookieManager.getInstance().getCookie(url)) != null) {
+            new Database(mContext).insertCookie(5, cookie);
+            Toast.makeText(mContext, "成功", Toast.LENGTH_SHORT).show();
+        }
     }
+
+
 
 
     @Override
