@@ -87,7 +87,7 @@ fn read_from_database(
             .unwrap());
         }
         return Ok(String::new());
-    } else if url.contains("91porn.com") || url.contains("eroticmv.com") {
+    } else if url.contains("91porn.com") || url.contains("eroticmv.com") || url.starts_with("/vodplay/"){
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
             subtitle: v.1,
@@ -106,7 +106,9 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
         Video::erotic_mv(&url, is_detail).await
     } else if url.contains("mahua11.com") {
         Video::ma_hua(&url, is_detail).await
-    } else {
+    } else if url.contains("/vodplay/") {
+        Video::five_two_ck(&url, is_detail).await
+    }else {
         Err("")?
     }
 }
@@ -150,7 +152,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
 #[get("/video/get?<url>")]
 pub async fn get(url: String) -> Status {
     log::error!("get: {}", url);
-    let video = Video::erotic_mv(url.as_str(), true).await.unwrap();
+    let video = Video::five_two_ck(url.as_str(), true).await.unwrap();
     log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
     Status::Ok
 }

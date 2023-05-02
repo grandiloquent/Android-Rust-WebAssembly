@@ -1,5 +1,6 @@
 package psycho.euphoria.plane;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -71,6 +72,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     public static void setWebView(WebView webView) {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -88,7 +90,6 @@ public class MainActivity extends Activity {
                 mWebView.loadUrl(mUrl);
             }
         };
-        Log.e("B5aOx2", String.format("initialize, %s", getPackageName() + ".server_started"));
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(START_SERVER_ACTION);
         registerReceiver(mBroadcastReceiver, intentFilter);
