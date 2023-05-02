@@ -2,10 +2,9 @@ use crate::data::video::Video;
 use crate::extractor::config::Config;
 use crate::utils::date::get_epoch_secs;
 use crate::utils::net::gen_ipv4;
-use crate::utils::string::{parse_number, StringExt};
+use crate::utils::string::{ StringExt};
 use rocket::serde::json::{serde_json, Value};
 use std::error::Error;
-use urlencoding::decode;
 
 async fn fetch_twitter<'a>(id: &str, config: &Config<'a>) -> reqwest::Result<String> {
     let mut client = reqwest::Client::builder().user_agent(config.user_agent);

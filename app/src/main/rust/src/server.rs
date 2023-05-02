@@ -2,7 +2,6 @@ use crate::data::cache::Cache;
 use crate::data::server::Server;
 use crate::handler::not_found::not_found;
 use crate::{data, handler};
-use log::log;
 use ndk::asset::AssetManager;
 use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};

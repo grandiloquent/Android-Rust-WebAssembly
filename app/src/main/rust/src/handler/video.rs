@@ -1,13 +1,10 @@
 use crate::data::video::{Video, VideoData};
 use crate::server::Database;
 use crate::utils::date::get_epoch_secs;
-use crate::utils::string::StringExt;
-use jni::descriptors::Desc;
 use rocket::http::Status;
 use rocket::serde::json::serde_json;
 use rocket::State;
 use rusqlite::{params, Connection};
-use serde::de::Unexpected::Str;
 use std::sync::Arc;
 use std::sync::MutexGuard;
 fn query(

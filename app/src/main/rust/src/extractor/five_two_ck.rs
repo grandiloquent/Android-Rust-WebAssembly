@@ -2,7 +2,7 @@ use crate::data::video::Video;
 use crate::extractor::config::Config;
 use crate::utils::date::get_epoch_secs;
 use crate::utils::net::gen_ipv4;
-use crate::utils::string::{parse_number, StringExt};
+use crate::utils::string::{StringExt};
 use regex::Regex;
 use std::error::Error;
 use urlencoding::decode;

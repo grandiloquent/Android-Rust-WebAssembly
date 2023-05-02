@@ -2,9 +2,8 @@ use crate::data::video::Video;
 use crate::extractor::config::Config;
 use crate::utils::date::get_epoch_secs;
 use crate::utils::net::gen_ipv4;
-use crate::utils::string::{parse_number, StringExt};
+use crate::utils::string::{StringExt};
 use std::error::Error;
-use urlencoding::decode;
 
 async fn fetch_erotic_mv<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
     let mut client = reqwest::Client::builder().user_agent(config.user_agent);

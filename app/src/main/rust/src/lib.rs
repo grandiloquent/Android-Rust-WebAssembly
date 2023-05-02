@@ -7,6 +7,7 @@ mod server;
 mod data;
 mod handler;
 mod extractor;
+mod db;
 
 
 use jni::JNIEnv;
