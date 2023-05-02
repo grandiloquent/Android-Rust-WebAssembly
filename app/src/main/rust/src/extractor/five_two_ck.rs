@@ -5,7 +5,6 @@ use crate::utils::net::gen_ipv4;
 use crate::utils::string::{StringExt};
 use regex::Regex;
 use std::error::Error;
-use urlencoding::decode;
 
 async fn fetch_five_two_ck<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
     let mut client = reqwest::Client::builder().user_agent(config.user_agent);

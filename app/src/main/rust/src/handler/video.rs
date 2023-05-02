@@ -62,7 +62,7 @@ fn update_views(conn: &MutexGuard<Connection>, uri: &str) -> Result<(), rusqlite
         params![uri],
         |row| Ok((row.get(0)?, row.get(1)?)),
     )?;
-    conn.execute(
+    let _ = conn.execute(
         "UPDATE video SET views = ? WHERE id = ?",
         params![r.1.unwrap_or(0) + 1, r.0],
     );
@@ -84,7 +84,10 @@ fn read_from_database(
             .unwrap());
         }
         return Ok(String::new());
-    } else if url.contains("91porn.com") || url.contains("eroticmv.com") || url.starts_with("/vodplay/"){
+    } else if url.contains("91porn.com")
+        || url.contains("eroticmv.com")
+        || url.starts_with("/vodplay/")
+    {
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
             subtitle: v.1,
@@ -105,14 +108,14 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
         Video::ma_hua(&url, is_detail).await
     } else if url.contains("/vodplay/") {
         Video::five_two_ck(&url, is_detail).await
-    }else {
+    } else {
         Err("")?
     }
 }
 
 #[get("/video/fetch?<url>")]
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
-    update_views(&db.0.lock().unwrap(), url.as_str());
+    let _ = update_views(&db.0.lock().unwrap(), url.as_str());
     let mut is_update = false;
     if let Ok(v) = read_from_database(&url, &db.0.lock().unwrap()) {
         if v.is_empty() {
@@ -132,7 +135,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
                     }
                 };
             } else {
-                insert(&db.0.lock().unwrap(), &video);
+                let _ = insert(&db.0.lock().unwrap(), &video);
             }
             return Ok(serde_json::to_string(&VideoData {
                 title: video.title,
@@ -156,7 +159,8 @@ pub async fn get(url: String) -> Status {
 #[get("/video/url?<id>")]
 pub fn get_url(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> {
     match db
-        .0.lock()
+        .0
+        .lock()
         .unwrap()
         .query_row(
             "select uri from video where id = ?",
