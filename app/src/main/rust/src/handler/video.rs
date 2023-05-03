@@ -125,7 +125,6 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
                     }
                 };
             } else {
-
                 if video.title.is_empty() || video.image.is_empty() {
                     return Err(Status::InternalServerError);
                 }
@@ -194,5 +193,15 @@ pub async fn update(url: String, db: &State<Arc<Database>>) -> Result<String, St
         Err(_err) => {
             return Err(Status::InternalServerError);
         }
+    }
+}
+#[get("/video/fav?<id>")]
+pub fn update_fav(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> {
+    match db.0.lock().unwrap().execute(
+        "update video set source_type = 10 where id = ?",
+        params![id],
+    ) {
+        Ok(value) => Ok(value.to_string()),
+        Err(_) => Err(Status::InternalServerError),
     }
 }

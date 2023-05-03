@@ -1,3 +1,4 @@
+pub mod add_video_to_favorites;
 pub mod data;
 pub mod dom;
 pub mod elements;

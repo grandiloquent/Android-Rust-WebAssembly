@@ -1,15 +1,13 @@
 use serde_json::Value;
 use urlencoding::encode;
-use wasm_bindgen::{JsValue, JsCast};
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys::Element;
 
 use crate::utils::{create_wrapper_element, query_element};
 
 use super::data::HANLDER;
 
-
 pub fn render_video_list(item: &Vec<Value>) -> Result<(), JsValue> {
-  
     let parent = query_element(".media-items")?;
     let s=item.iter().map(|x|{
         format!(r#"<div class="media_item"><a class="media_item_thumbnail_container"
@@ -49,7 +47,7 @@ pub fn render_video_list(item: &Vec<Value>) -> Result<(), JsValue> {
     wrapper.set_inner_html(s.as_str());
 
     let _ = parent.append_child(&wrapper);
-    let _=bind_video_menu(&wrapper);
+    let _ = bind_video_menu(&wrapper);
     Ok(())
 }
 
@@ -63,12 +61,14 @@ fn bind_video_menu(wrapper: &Element) -> Result<(), JsValue> {
                 return Err(JsValue::from_str("count"));
             }
         };
-        let _ = n.add_event_listener_with_callback("click", HANLDER.get().unwrap().as_ref().unchecked_ref());
+        let _ = n.add_event_listener_with_callback(
+            "click",
+            HANLDER.get().unwrap().as_ref().unchecked_ref(),
+        );
         count = count + 1;
-        if count > nodes.length() {
+        if count >= nodes.length() {
             break;
         }
     }
     Err("")?
 }
- 

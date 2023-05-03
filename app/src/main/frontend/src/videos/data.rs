@@ -6,7 +6,7 @@ use serde_json::Value;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{
-    Element, Event, EventTarget, IntersectionObserver, IntersectionObserverEntry, Request,
+    Element, Event,  IntersectionObserver, IntersectionObserverEntry, Request,
     RequestInit, Response,
 };
 
@@ -36,7 +36,6 @@ pub fn render() {
                     return;
                 }
             };
-            log(format!("{}", "------------").as_str());
             let bottom_sheet_container = query_element(".bottom-sheet-container").unwrap();
             let _ = bottom_sheet_container.set_attribute(
                 "data-id",
@@ -45,53 +44,10 @@ pub fn render() {
             let _ = bottom_sheet_container.set_attribute("style", "display: flex");
         }) as Box<dyn FnMut(Event)>))
     });
-    // log
-
-    // spawn_local(async move {
-    //     let window = web_sys::window().expect("Couldn't get window");
-    //     let document = window.document().expect("Couldn't get document");
-    //     let obj: Value = load_video_list(
-    //         unsafe {
-    //             OFFSET
-    //                 .fetch_add(20, Ordering::SeqCst)
-    //                 .into()
-    //         },
-    //         20,
-    //     )
-    //     .await
-    //     .unwrap();
-    //     let array = obj.as_array().unwrap();
-    //     let parent = document
-    //         .query_selector(".media-items")
-    //         .unwrap()
-    //         .unwrap()
-    //         .dyn_into::<HtmlElement>()
-    //         .unwrap();
-    //     let bottom_sheet_container = Arc::new(
-    //         document
-    //             .query_selector(".bottom-sheet-container")
-    //             .unwrap()
-    //             .unwrap()
-    //             .dyn_into::<HtmlElement>()
-    //             .unwrap(),
-    //     );
-    //     array.iter().for_each(|x| {
-    //         render_item(
-    //             &document,
-    //             &parent,
-    //             bottom_sheet_container.clone(),
-    //             x["id"].as_i64().unwrap(),
-    //             x["image"].as_str().unwrap(),
-    //             x["title"].as_str().unwrap(),
-    //             x["uri"].as_str().unwrap(),
-    //         );
-    //     });
-    // });
     {
         let window = web_sys::window().expect("Couldn't get window");
         let document = window.document().expect("Couldn't get document");
         let load_more = document.query_selector(".load-more").unwrap().unwrap();
-        log(format!("{}", "load").as_str());
         let handler = Closure::<dyn Fn(Vec<IntersectionObserverEntry>)>::new(
             move |entries: Vec<IntersectionObserverEntry>| {
                 // Get the right entry, and make sure it's currently intersecting (this callback
@@ -108,39 +64,6 @@ pub fn render() {
                             let obj = obj.as_array().unwrap();
                             let _ = render_video_list(obj);
                             ()
-
-                            /*
-                            let window = web_sys::window().expect("Couldn't get window");
-                            let document = window.document().expect("Couldn't get document");
-
-                            let array = obj.as_array().unwrap();
-                            let parent = document
-                                .query_selector(".media-items")
-                                .unwrap()
-                                .unwrap()
-                                .dyn_into::<HtmlElement>()
-                                .unwrap();
-                            let bottom_sheet_container = Arc::new(
-                                document
-                                    .query_selector(".bottom-sheet-container")
-                                    .unwrap()
-                                    .unwrap()
-                                    .dyn_into::<HtmlElement>()
-                                    .unwrap(),
-                            );
-                            array.iter().for_each(|x| {
-                                render_item(
-                                    &document,
-                                    &parent,
-                                    bottom_sheet_container.clone(),
-                                    x["id"].as_i64().unwrap(),
-                                    x["image"].as_str().unwrap(),
-                                    x["title"].as_str().unwrap(),
-                                    x["uri"].as_str().unwrap(),
-                                );
-                            });
-
-                             */
                         });
                     }
                 }

@@ -8,7 +8,7 @@ fn list_videos(
     offset: u32,
     limit: u32,
 ) -> Result<Vec<Video>, rusqlite::Error> {
-    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video WHERE hidden = 0 ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
+    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video WHERE hidden = 0 and source_type<10 ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
     let mut rows = query.query(params![limit, offset])?;
     let mut v = Vec::<Video>::new();
     while let Some(row) = rows.next()? {

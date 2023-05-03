@@ -11,11 +11,7 @@ use video::{
     handler::{bind_onplay, bind_video},
     seek::{bind_fast_forward, set_progress_click},
 };
-use videos::{
-    data::render,
-    dom::{build_bottom_bar, build_bottom_sheet},
-    search::initialize_search,
-};
+use videos::{data::render, dom::initialize_bottom_sheet, search::initialize_search};
 
 use elements::{
     append_bottom, append_middle, append_track, get_video, set_ondurationchange, set_onpause,
@@ -141,8 +137,7 @@ pub fn play(src: &str) {
 #[wasm_bindgen]
 pub fn render_videos() {
     initialize_search();
-    build_bottom_bar();
-    build_bottom_sheet();
+    initialize_bottom_sheet();
     render();
 }
 
