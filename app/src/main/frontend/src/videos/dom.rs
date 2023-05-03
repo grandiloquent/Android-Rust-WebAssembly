@@ -4,12 +4,9 @@ use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{Element, Request, RequestInit, Response};
 
-use crate::utils::{bind_click_event, hidden_element, query_element};
+use crate::utils::{get_base_uri, hidden_element, query_element};
 
-use super::{
-    add_video_to_favorites::{add_video_to_favorites, execute_add_video_to_favorites},
-    elements::{create_menu_item, open_page_with_id},
-};
+use super::{add_video_to_favorites::execute_add_video_to_favorites, elements::open_page_with_id};
 fn bind_action_open(bottom_sheet_container: Rc<Element>) {
     let element = query_element(".menu-item-open").unwrap();
     let handler = Closure::wrap(Box::new(move || {
@@ -35,10 +32,10 @@ pub fn initialize_bottom_sheet() {
     let _ = bind_action_overlay(bottom_sheet_container.clone());
 }
 
-async fn delete_video(base_uri: &str, id: &str) -> Result<JsValue, JsValue> {
+async fn delete_video(id: &str) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
     opts.method("GET");
-    let url = format!("{}/videos/hidden?id={}", base_uri, id);
+    let url = format!("{}/videos/hidden?id={}", get_base_uri(), id);
     let request = Request::new_with_str_and_init(&url, &opts)?;
     let window = web_sys::window().unwrap();
     let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
@@ -63,7 +60,7 @@ fn bind_action_delete(bottom_sheet_container: Rc<Element>) {
             }
         };
         spawn_local(async move {
-            let _ = delete_video("", id.as_str()).await;
+            let _ = delete_video(id.as_str()).await;
             let window = web_sys::window().expect("global window does not exists");
             let _ = window.location().reload();
         });

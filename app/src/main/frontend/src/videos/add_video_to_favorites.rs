@@ -2,12 +2,11 @@ use std::rc::Rc;
 
 use crate::utils::{get_base_uri, hidden_element};
 
-use super::elements::create_menu_item;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::{prelude::Closure, JsValue};
 use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{Document, Element};
+use web_sys::Element;
 use web_sys::{Request, RequestInit, Response};
 
 fn get_data_id(bottom_sheet_container: Rc<Element>) -> Result<String, JsValue> {
@@ -25,19 +24,6 @@ pub fn execute_add_video_to_favorites(bottom_sheet_container: Rc<Element>) -> Cl
             let _ = web_sys::window().unwrap().location().reload();
         });
     }) as Box<dyn FnMut()>)
-}
-
-pub fn add_video_to_favorites(
-    document: &Document,
-    bottom_sheet_content: &Element,
-    bottom_sheet_container: Rc<Element>,
-) -> Result<(), JsValue> {
-    create_menu_item(
-        document,
-        bottom_sheet_content,
-        "收藏",
-        execute_add_video_to_favorites(bottom_sheet_container),
-    )
 }
 
 async fn favorite_video(id: &str) -> Result<JsValue, JsValue> {

@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
-use wasm_bindgen::{JsCast, JsValue, prelude::Closure};
-use web_sys::{HtmlElement, HtmlVideoElement, Element};
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::{Element, HtmlElement, HtmlVideoElement};
 
 use crate::log;
 
@@ -169,11 +169,7 @@ pub fn create_wrapper_element() -> Result<Element, JsValue> {
     };
     document.create_element("div")
 }
-pub fn bind_click_event(element: &Element, handler: Closure<dyn FnMut()>) -> Result<(), JsValue> {
-    element.add_event_listener_with_callback("click", handler.as_ref().dyn_ref().unwrap())?;
-    handler.forget();
-    Ok(())
-}
+
 pub fn hidden_element(element: &Element) -> Result<(), JsValue> {
     element.set_attribute("style", "display:none")
 }

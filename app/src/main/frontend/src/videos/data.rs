@@ -11,7 +11,6 @@ use web_sys::{
 };
 
 use crate::{
-    log,
     utils::{get_base_uri, query_element},
 };
 
