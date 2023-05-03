@@ -81,6 +81,18 @@ public class MainActivity extends Activity {
     }
 
     private void initialize() {
+
+
+        aroundFileUriExposedException();
+        requestStorageManagerPermission(this);
+        mWebView = initializeWebView(this);
+        setWebView(mWebView);
+        launchServer(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -91,11 +103,6 @@ public class MainActivity extends Activity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(START_SERVER_ACTION);
         registerReceiver(mBroadcastReceiver, intentFilter);
-        aroundFileUriExposedException();
-        requestStorageManagerPermission(this);
-        mWebView = initializeWebView(this);
-        setWebView(mWebView);
-        launchServer(this);
     }
 
     @Override

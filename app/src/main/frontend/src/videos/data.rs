@@ -3,15 +3,17 @@ use std::sync::atomic::{AtomicU16, Ordering};
 use once_cell::sync::OnceCell;
 use send_wrapper::SendWrapper;
 use serde_json::Value;
+use urlencoding::encode;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{
-    Element, Event,  IntersectionObserver, IntersectionObserverEntry, Request,
-    RequestInit, Response,
+    Element, Event, IntersectionObserver, IntersectionObserverEntry, Request, RequestInit,
+    Response, Url,
 };
 
 use crate::{
-    utils::{get_base_uri, query_element},
+    log,
+    utils::{get_base_uri, get_base_url, get_string, query_element},
 };
 
 use super::render_video_list::render_video_list;
@@ -74,8 +76,32 @@ pub fn render() {
     }
 }
 async fn load_video_list(offset: u32, limit: u32) -> Result<Value, JsValue> {
-    let base_uri = get_base_uri();
-    let videos = match load_videos(base_uri.as_str(), offset, limit)
+    let base_url = get_base_url().unwrap();
+    base_url.set_pathname("/videos/list");
+    base_url
+        .search_params()
+        .set("offset", offset.to_string().as_str());
+    base_url
+        .search_params()
+        .set("limit", limit.to_string().as_str());
+    let url = Url::new(
+        web_sys::window()
+            .unwrap()
+            .location()
+            .href()
+            .unwrap()
+            .as_str(),
+    )
+    .unwrap();
+
+    if let Some(q) = url.search_params().get("q") {
+        base_url
+            .search_params()
+            .set("q", encode(q.as_str()).to_string().as_str());
+    }
+    log(format!("{:?}", base_url.to_string()).as_str());
+
+    let videos = match get_string(base_url.to_string().as_string().unwrap().as_str())
         .await?
         .as_string()
     {

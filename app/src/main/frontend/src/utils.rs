@@ -1,7 +1,8 @@
 use std::rc::Rc;
 
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{Element, HtmlElement, HtmlVideoElement};
+use wasm_bindgen_futures::JsFuture;
+use web_sys::{Element, HtmlElement, HtmlVideoElement, Request, RequestInit, Response, Url};
 
 use crate::log;
 
@@ -172,4 +173,34 @@ pub fn create_wrapper_element() -> Result<Element, JsValue> {
 
 pub fn hidden_element(element: &Element) -> Result<(), JsValue> {
     element.set_attribute("style", "display:none")
+}
+pub async fn get_string(url: &str) -> Result<JsValue, JsValue> {
+    let mut opts = RequestInit::new();
+    opts.method("GET");
+    let request = Request::new_with_str_and_init(&url, &opts)?;
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+    let resp: Response = resp_value.dyn_into().unwrap();
+    let json = JsFuture::from(resp.text()?).await?;
+    Ok(json)
+}
+pub fn get_base_url() -> Result<Url, JsValue> {
+    let window = match web_sys::window() {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("window"));
+        }
+    };
+    let location = window.location();
+    let host = match location.host() {
+        Ok(v) => v,
+        Err(_) => {
+            return Err(JsValue::from_str("host"));
+        }
+    };
+    if host == "127.0.0.1:5500" {
+        Url::new("http://192.168.0.109:3000")
+    } else {
+        Url::new(format!("{}{}", location.protocol().unwrap(), host).as_str())
+    }
 }

@@ -7,31 +7,45 @@ use rocket::http::Status;
 use rocket::State;
 use std::sync::Arc;
 
-
-#[get("/videos/list?<offset>&<limit>")]
+#[get("/videos/list?<offset>&<limit>&<q>&<t>")]
 pub fn list(
     offset: Option<u32>,
     limit: Option<u32>,
+    q: Option<String>,
+    t: Option<u32>,
     db: &State<Arc<Database>>,
 ) -> Result<String, Status> {
-    if let Ok(v) = execute_list_videos(
-        &db.0.lock().unwrap(),
-        offset.unwrap_or(0),
-        limit.unwrap_or(20),
-    ) {
-        Ok(v)
+    if let Some(v) = q {
+        if let Ok(v) = execute_search_videos(
+            &db.0.lock().unwrap(),
+            &v,
+            offset.unwrap_or(0),
+            limit.unwrap_or(20),
+        ) {
+            Ok(v)
+        } else {
+            Err(Status::NotFound)
+        }
     } else {
-        Err(Status::NotFound)
+        if let Ok(v) = execute_list_videos(
+            &db.0.lock().unwrap(),
+            offset.unwrap_or(0),
+            limit.unwrap_or(20),
+        ) {
+            Ok(v)
+        } else {
+            Err(Status::NotFound)
+        }
     }
 }
 #[get("/videos/search?<q>&<offset>&<limit>")]
 pub fn search(
-    q:String,
+    q: String,
     offset: Option<u32>,
     limit: Option<u32>,
     db: &State<Arc<Database>>,
 ) -> Result<String, Status> {
-    if let Ok(v) =execute_search_videos(
+    if let Ok(v) = execute_search_videos(
         &db.0.lock().unwrap(),
         &q,
         offset.unwrap_or(0),

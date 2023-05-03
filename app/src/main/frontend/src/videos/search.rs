@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use urlencoding::encode;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
@@ -6,13 +7,10 @@ use web_sys::Document;
 use web_sys::Element;
 use web_sys::KeyboardEvent;
 
-use wasm_bindgen_futures::spawn_local;
+use web_sys::Url;
 
-use crate::log;
 
-use super::fetch_match_videos::fetch_match_videos;
 use super::query_input::query_input;
-use super::render_video_list::render_video_list;
 
 pub fn initialize_search() {
     let window = web_sys::window().expect("global window does not exists");
@@ -74,17 +72,12 @@ pub fn bind_input(document: &Document, share: Rc<Element>) -> Result<(), JsValue
         let ev = element.clone();
         let handler = Closure::wrap(Box::new(move |e: KeyboardEvent| {
             share.set_class_name("topbar-header search-on");
-            log(format!("{}", e.key()).as_str());
+
             if e.key() == "Enter" {
-                let ev = ev.clone();
-                spawn_local(async move {
-                    let obj = fetch_match_videos(ev.value().as_str(), 0, 20)
-                        .await
-                        .unwrap();
-                    let obj = obj.as_array().unwrap();
-                    let _ = render_video_list(obj);
-                    ()
-                });
+                let l = web_sys::window().unwrap().location();
+                let url = Url::new(l.href().unwrap().as_str()).unwrap();
+                url.search_params().set("q", &encode(ev.value().as_str()));
+                let _ = l.set_href(url.to_string().as_string().unwrap().as_str());
             }
         }) as Box<dyn FnMut(KeyboardEvent)>);
         let _ = element

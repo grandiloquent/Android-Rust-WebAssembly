@@ -41,5 +41,7 @@ features = [
   "DomRect",
   "IntersectionObserver",
   "IntersectionObserverEntry",
-  "NodeList"
+  "NodeList",
+  "Url",
+  "UrlSearchParams"
 ]
