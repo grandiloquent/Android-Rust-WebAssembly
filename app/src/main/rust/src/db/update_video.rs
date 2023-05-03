@@ -14,8 +14,8 @@ pub fn execute_update_video(
     update_at: u64,
 ) -> Result<(), rusqlite::Error> {
     conn.query_row(
-        "UPDATE video SET uri = ?,title = ?,subtitle = ?,file = ?,image = ?,source_type = ?,hidden = ?,update_at = ? WHERE id = ?",
-        params![uri,title,subtitle,file,image,source_type,hidden,update_at, id],
+        "UPDATE video SET title = ?,subtitle = ?,file = ?,image = ?,source_type = ?,hidden = ?,update_at = ? WHERE uri = ?",
+        params![title,subtitle,file,image,source_type,hidden,update_at,uri],
         |_r| Ok(()),
     )
 }

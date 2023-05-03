@@ -125,9 +125,8 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
                     }
                 };
             } else {
-                log::error!("0000000000{}", video.file);
 
-                if video.title.is_empty() {
+                if video.title.is_empty() || video.image.is_empty() {
                     return Err(Status::InternalServerError);
                 }
                 let _ = insert(&db.0.lock().unwrap(), &video);

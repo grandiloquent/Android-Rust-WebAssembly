@@ -52,9 +52,15 @@ pub async fn extract_five_two_ck(
             .substring_between(r#"<meta name="keywords" content=""#, "在线收看,")
             .trim()
             .to_string();
+
         let image = res
-            .substring_between(r#"<a class="stui-vodlist__thumb lazyload" href=""#, "<span")
+            .substring_between(format!(r#"<a class="stui-vodlist__thumb lazyload" href="/vodplay/{}/"#,uri.substring_after("/vodplay/")
+            .substring_before_last(".")
+            .substring_before("/")).as_str(), ">")
             .substring_between(r#"data-original=""#, r#"""#);
+//        log::error!(r#"<a class="stui-vodlist__thumb lazyload" href="/vodplay/{}/ {}"#,uri.substring_after("/vodplay/")
+//            .substring_before_last(".")
+//            .substring_before("/"),image);
         let source_type = 5;
         let hidden = 0;
         let create_at = get_epoch_secs();
