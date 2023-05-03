@@ -36,7 +36,7 @@ impl Cache {
                     }
                 }
             }
-            Err(err) => {
+            Err(_err) => {
                 None
             }
         }

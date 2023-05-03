@@ -1,10 +1,8 @@
-use crate::db::list_videos::Video;
 use rocket::serde::json::serde_json;
-use rocket::serde::Deserialize;
-use rocket::serde::Serialize;
 use rusqlite::{params, Connection};
 use std::error::Error;
 use std::sync::MutexGuard;
+use crate::db::video::Video;
 
 fn search_videos(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::Error> {
     let mut query = conn.prepare(

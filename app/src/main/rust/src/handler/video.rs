@@ -35,7 +35,7 @@ video.source_type,
 video.hidden,
 video.create_at,
 video.update_at
-    ], |r| {
+    ], |_r| {
         Ok(())
     })
 }
@@ -53,7 +53,7 @@ fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::
     conn.query_row(
         "UPDATE video SET file = ?,update_at = ? WHERE uri = ?",
         params![video.uri, video.file, video.update_at],
-        |r| Ok(()),
+        |_r| Ok(()),
     )
 }
 fn update_views(conn: &MutexGuard<Connection>, uri: &str) -> Result<(), rusqlite::Error> {
@@ -97,7 +97,11 @@ fn read_from_database(
     }
     Err("")?
 }
-async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::error::Error>> {
+async fn create_video(
+    url: &str,
+    is_detail: bool,
+    cookie: &str,
+) -> Result<Video, Box<dyn std::error::Error>> {
     if url.contains("xvideos.com") {
         Video::xvideos(&url, is_detail).await
     } else if url.contains("91porn.com") {
@@ -107,10 +111,16 @@ async fn create_video(url: &str, is_detail: bool) -> Result<Video, Box<dyn std::
     } else if url.contains("mahua11.com") {
         Video::ma_hua(&url, is_detail).await
     } else if url.contains("/vodplay/") {
-        Video::five_two_ck(&url, is_detail).await
+        Video::five_two_ck(&url, cookie, is_detail).await
     } else {
         Err("")?
     }
+}
+fn query_cookie(db: &MutexGuard<Connection>) -> String {
+    db.query_row("select value from cookie where type = 5", [], |row| {
+        Ok(row.get(0).unwrap())
+    })
+    .unwrap_or(String::new())
 }
 
 #[get("/video/fetch?<url>")]
@@ -124,9 +134,14 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             return Ok(v);
         }
     }
-    match create_video(&url, !is_update).await {
+
+    let cookie = if url.contains("/vodplay/") {
+        query_cookie(&db.0.lock().unwrap())
+    } else {
+        String::new()
+    };
+    match create_video(&url, !is_update, cookie.as_str()).await {
         Ok(video) => {
-            log::error!("{}", url);
             if is_update {
                 match update(&db.0.lock().unwrap(), &video) {
                     Ok(_) => {}
@@ -135,6 +150,11 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
                     }
                 };
             } else {
+                log::error!("0000000000{}", video.file);
+
+                if video.title.is_empty() {
+                    return Err(Status::InternalServerError);
+                }
                 let _ = insert(&db.0.lock().unwrap(), &video);
             }
             return Ok(serde_json::to_string(&VideoData {
@@ -144,16 +164,16 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             })
             .unwrap());
         }
-        Err(err) => {
+        Err(_err) => {
             return Err(Status::InternalServerError);
         }
     };
 }
 #[get("/video/get?<url>")]
 pub async fn get(url: String) -> Status {
-    log::error!("get: {}", url);
-    let video = Video::five_two_ck(url.as_str(), true).await.unwrap();
-    log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
+    // log::error!("get: {}", url);
+    // let video = Video::five_two_ck(url.as_str(), true).await.unwrap();
+    // log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
     Status::Ok
 }
 #[get("/video/url?<id>")]

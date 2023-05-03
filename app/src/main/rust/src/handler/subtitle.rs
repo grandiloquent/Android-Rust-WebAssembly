@@ -33,7 +33,6 @@ fn transform(input_path: &Path)
         }
     };
     let mut skip: bool = false;
-    let mut deleted_subs = 0;
     let mut s = "WEBVTT\n".to_string();
     for line in reader.lines() {
         let mut new_line = line.unwrap_or(String::new());
@@ -42,7 +41,6 @@ fn transform(input_path: &Path)
             new_line = new_line.replace(",", ".");
             new_line = process_line(new_line);
             if new_line == "(DELETED)\n" {
-                deleted_subs += 1;
                 skip = true; // skip/delete upcoming subtitles
             }
         } else if skip {

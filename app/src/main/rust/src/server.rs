@@ -36,6 +36,7 @@ fn initialize_database(conn: &Connection) {
 	"uri"	TEXT NOT NULL,
 	"title"	TEXT,
     "subtitle"	TEXT,
+    "duration"	INTEGER,
 	"file"	TEXT,
 	"image"	TEXT,
 	"source_type"	INTEGER,
@@ -81,7 +82,7 @@ fn initialize_database(conn: &Connection) {
 
 #[tokio::main]
 pub async fn run_server(srv: Server, ass: AssetManager) {
-    let conn = Connection::open(srv.db.as_str()).expect("");
+    let conn = Connection::open(srv.db.as_str()).expect("Couldn't open the sqlite");
     initialize_database(&conn);
 
     let server = rocket::custom(build_figment(srv))

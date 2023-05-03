@@ -1,18 +1,8 @@
+use crate::db::video::Video;
 use rocket::serde::json::serde_json;
-use rocket::serde::Deserialize;
-use rocket::serde::Serialize;
 use rusqlite::{params, Connection};
 use std::error::Error;
 use std::sync::MutexGuard;
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Video {
-    pub id: i32,
-    pub uri: String,
-    pub title: String,
-    pub image: String,
-    pub source_type: i32,
-    pub update_at: u64,
-}
 fn list_videos(
     conn: &MutexGuard<Connection>,
     offset: u32,

@@ -5,6 +5,6 @@ pub fn execute_update_video_uri(conn: &MutexGuard<Connection>, id: u32, uri: &st
     conn.query_row(
         "UPDATE video SET uri = ? WHERE id = ?",
         params![uri, id],
-        |r| Ok(()),
+        |_r| Ok(()),
     )
 }

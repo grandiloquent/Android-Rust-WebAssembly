@@ -44,7 +44,7 @@ pub fn search(
 }
 #[get("/videos/delete?<id>")]
 pub fn delete_video(id: i32, db: &State<Arc<Database>>) -> Result<String, Status> {
-    if let Ok(v) = execute_delete_video(&db.0.lock().unwrap(), id) {
+    if let Ok(_v) = execute_delete_video(&db.0.lock().unwrap(), id) {
         Ok("Success".to_string())
     } else {
         Err(Status::NotFound)
@@ -52,7 +52,7 @@ pub fn delete_video(id: i32, db: &State<Arc<Database>>) -> Result<String, Status
 }
 #[get("/videos/hidden?<id>")]
 pub fn hidden_video(id: i32, db: &State<Arc<Database>>) -> Result<String, Status> {
-    if let Ok(v) = execute_hidden_video(&db.0.lock().unwrap(), id) {
+    if let Ok(_v) = execute_hidden_video(&db.0.lock().unwrap(), id) {
         Ok("Success".to_string())
     } else {
         Err(Status::NotFound)
