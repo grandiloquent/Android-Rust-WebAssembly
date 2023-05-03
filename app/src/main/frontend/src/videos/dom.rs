@@ -6,9 +6,10 @@ use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{Document, HtmlElement, Request, RequestInit, Response};
 
 
+use crate::utils::{hidden_element, bind_click_event};
+
 use super::{
     elements::{create_bottom_tab_item, create_menu_item, open_page_with_id},
-    utils::{bind_click_event, hidden_element},
 };
 
 pub fn render_item(

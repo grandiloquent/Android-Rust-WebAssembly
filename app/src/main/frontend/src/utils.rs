@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
-use wasm_bindgen::JsCast;
-use web_sys::{HtmlElement, HtmlVideoElement};
+use wasm_bindgen::{JsCast, JsValue, prelude::Closure};
+use web_sys::{HtmlElement, HtmlVideoElement, Element};
 
 use crate::log;
 
@@ -132,4 +132,48 @@ pub fn get_base_uri() -> String {
     } else {
         String::new()
     }
+}
+pub fn query_element(selectors: &str) -> Result<Element, JsValue> {
+    let window = match web_sys::window() {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("window"));
+        }
+    };
+    let document = match window.document() {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("document"));
+        }
+    };
+    let element = document.query_selector(selectors)?;
+    match element {
+        Some(v) => Ok(v),
+        None => {
+            return Err(JsValue::from_str("element"));
+        }
+    }
+}
+pub fn create_wrapper_element() -> Result<Element, JsValue> {
+    let window = match web_sys::window() {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("window"));
+        }
+    };
+    let document = match window.document() {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("document"));
+        }
+    };
+    document.create_element("div")
+}
+pub fn bind_click_event(element: &Element, handler: Closure<dyn FnMut()>) -> Result<(), JsValue> {
+    element.add_event_listener_with_callback("click", handler.as_ref().dyn_ref().unwrap())?;
+    handler.forget();
+    Ok(())
+}
+pub fn hidden_element(element: &Element) -> Result<(), JsValue> {
+    element.set_attribute("style", "display:none")
 }

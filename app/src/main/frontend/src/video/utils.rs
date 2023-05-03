@@ -9,7 +9,7 @@ pub fn schedule_hidden() {
     let handle = window
         .set_timeout_with_callback_and_timeout_and_arguments_0(
             HANLDER.get().unwrap().as_ref().unchecked_ref(),
-            5000,
+            10000,
         )
         .unwrap();
     HANDLE.swap(handle, std::sync::atomic::Ordering::AcqRel);

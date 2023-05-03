@@ -40,5 +40,6 @@ features = [
   "MouseEvent",
   "DomRect",
   "IntersectionObserver",
-  "IntersectionObserverEntry"
+  "IntersectionObserverEntry",
+  "NodeList"
 ]
