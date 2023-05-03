@@ -7,6 +7,9 @@ use rocket::State;
 use rusqlite::{params, Connection};
 use std::sync::Arc;
 use std::sync::MutexGuard;
+use crate::db::update_video_views::execute_update_video_views;
+use crate::db::query_cookie::execute_query_cookie;
+use crate::db::update_video_file::execute_update_video_file;
 fn query(
     conn: &MutexGuard<Connection>,
     uri: &str,
@@ -39,35 +42,8 @@ video.update_at
         Ok(())
     })
 }
-fn update(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
-    /*    conn.query_row(
-            "UPDATE video SET title = ?,file = ?,image = ?,source_type = ?,hidden = ?, update_at = ? WHERE uri = ?",
-            params![video.title,
-    video.file,
-    video.image,
-    video.source_type,
-    video.hidden,
-    video.update_at,video.uri],
-            |r| Ok(()),
-        )*/
-    conn.query_row(
-        "UPDATE video SET file = ?,update_at = ? WHERE uri = ?",
-        params![video.uri, video.file, video.update_at],
-        |_r| Ok(()),
-    )
-}
-fn update_views(conn: &MutexGuard<Connection>, uri: &str) -> Result<(), rusqlite::Error> {
-    let r: (u32, Option<u32>) = conn.query_row(
-        "select id,views from video WHERE uri = ?",
-        params![uri],
-        |row| Ok((row.get(0)?, row.get(1)?)),
-    )?;
-    let _ = conn.execute(
-        "UPDATE video SET views = ? WHERE id = ?",
-        params![r.1.unwrap_or(0) + 1, r.0],
-    );
-    Ok(())
-}
+
+
 fn read_from_database(
     url: &str,
     db: &MutexGuard<Connection>,
@@ -116,16 +92,11 @@ async fn create_video(
         Err("")?
     }
 }
-fn query_cookie(db: &MutexGuard<Connection>) -> String {
-    db.query_row("select value from cookie where type = 5", [], |row| {
-        Ok(row.get(0).unwrap())
-    })
-    .unwrap_or(String::new())
-}
+
 
 #[get("/video/fetch?<url>")]
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
-    let _ = update_views(&db.0.lock().unwrap(), url.as_str());
+    let _ = execute_update_video_views(&db.0.lock().unwrap(), url.as_str());
     let mut is_update = false;
     if let Ok(v) = read_from_database(&url, &db.0.lock().unwrap()) {
         if v.is_empty() {
@@ -136,14 +107,14 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     }
 
     let cookie = if url.contains("/vodplay/") {
-        query_cookie(&db.0.lock().unwrap())
+        execute_query_cookie(&db.0.lock().unwrap())
     } else {
         String::new()
     };
     match create_video(&url, !is_update, cookie.as_str()).await {
         Ok(video) => {
             if is_update {
-                match update(&db.0.lock().unwrap(), &video) {
+                match execute_update_video_file(&db.0.lock().unwrap(), video.uri.as_str(),video.file.as_str()) {
                     Ok(_) => {}
                     Err(err) => {
                         log::error!("{}", err);

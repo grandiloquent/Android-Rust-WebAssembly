@@ -12,7 +12,6 @@ async fn fetch_ma_hua<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<Str
         client = client.proxy(proxy);
     }
     let client = client.build()?;
-    let ip4 = gen_ipv4();
     let mut client = client.get(url);
     if let Some(v) = config.cookie {
         client = client.header("Cookie", v);

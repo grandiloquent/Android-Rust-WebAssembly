@@ -31,3 +31,10 @@
             return `${x[1]}:u32`;
     }).join(","))
 })();
+
+/*
+
+$filename="update_video_file.rs";$dir="C:\Users\psycho\Desktop\file\Plane\app\src\main\rust\src\db";Set-Location $dir; New-Item $filename;Get-ChildItem | Where-Object {$_.Name -ne "mod.rs"} | Split-Path -LeafBase | Join-String -FormatString "pub mod {0};`r`n" | Set-Content -Path .\mod.rs;
+
+
+*/

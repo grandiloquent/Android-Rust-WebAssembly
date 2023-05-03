@@ -1,7 +1,6 @@
 use crate::data::video::Video;
 use crate::extractor::config::Config;
 use crate::utils::date::get_epoch_secs;
-use crate::utils::net::gen_ipv4;
 use crate::utils::string::{StringExt};
 use std::error::Error;
 
