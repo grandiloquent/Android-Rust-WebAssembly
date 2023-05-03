@@ -57,27 +57,28 @@ fn initialize_database(conn: &Connection) {
     //     r#"CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);"#,
     //     [],
     // );
-//     r#"ALTER TABLE video RENAME TO temp_video;
+    //     r#"ALTER TABLE video RENAME TO temp_video;
 
-// CREATE TABLE "video" ("id" INTEGER NOT NULL UNIQUE,"uri" TEXT NOT NULL,"title" TEXT,"subtitle" TEXT,"file" TEXT,"image" TEXT,"source_type" INTEGER,"views" INTEGER,"hidden" INTEGER,"create_at" INTEGER,"update_at" INTEGER,PRIMARY KEY("id" AUTOINCREMENT));
+    // CREATE TABLE "video" ("id" INTEGER NOT NULL UNIQUE,"uri" TEXT NOT NULL,"title" TEXT,"subtitle" TEXT,"file" TEXT,"image" TEXT,"source_type" INTEGER,"views" INTEGER,"hidden" INTEGER,"create_at" INTEGER,"update_at" INTEGER,PRIMARY KEY("id" AUTOINCREMENT));
 
-// INSERT INTO video(id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) SELECT id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at FROM temp_video;
+    // INSERT INTO video(id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) SELECT id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at FROM temp_video;
 
-// DROP TABLE temp_video;"#.split("\n")
-// .into_iter()
-// .for_each(|l|{
-// if l.is_empty() {
-// return;
-// }
-// conn.execute(
-//     l,
-//     [],
-// );
-// });
-// conn.execute_batch(r#"BEGIN;
-// delete from video where id in (select id from (SELECT id, COUNT(*) c FROM video GROUP BY uri HAVING c > 1));
-// CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);
-// END;"#);
+    // DROP TABLE temp_video;"#.split("\n")
+    // .into_iter()
+    // .for_each(|l|{
+    // if l.is_empty() {
+    // return;
+    // }
+    // conn.execute(
+    //     l,
+    //     [],
+    // );
+    // });
+    // conn.execute_batch(r#"BEGIN;
+    // delete from video where id in (select id from (SELECT id, COUNT(*) c FROM video GROUP BY uri HAVING c > 1));
+    // CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);
+    // END;"#);
+    
 }
 
 #[tokio::main]
@@ -91,7 +92,17 @@ pub async fn run_server(srv: Server, ass: AssetManager) {
         .manage(Arc::new(Database(Arc::new(Mutex::new(conn)))))
         .mount(
             "/",
-            routes![handler::db::list,handler::db::search,handler::db::delete_video,handler::db::hidden_video,handler::files::files,handler::html::file,handler::video::parse,handler::video::get,handler::video::get_url],
+            routes![
+                handler::db::list,
+                handler::db::search,
+                handler::db::delete_video,
+                handler::db::hidden_video,
+                handler::files::files,
+                handler::html::file,
+                handler::video::parse,
+                handler::video::get,
+                handler::video::get_url
+            ],
         )
         .register("/", catchers![not_found]);
     let _ = server.launch().await;
