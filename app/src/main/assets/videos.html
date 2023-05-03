@@ -753,6 +753,12 @@
                     await fetch(`/video/fetch?url=${encodeURIComponent(await readText())}`);
                     location.reload();
                 })
+            document.querySelector('.tab-item-favorite').
+                addEventListener('click', async evt => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('t', "10")
+                    window.location.href = url;
+                })
         });
     </script>
 </body>

@@ -13,7 +13,7 @@ use web_sys::{
 
 use crate::{
     log,
-    utils::{get_base_uri, get_base_url, get_string, query_element},
+    utils::{get_base_url, get_string, query_element},
 };
 
 use super::render_video_list::render_video_list;
@@ -99,8 +99,11 @@ async fn load_video_list(offset: u32, limit: u32) -> Result<Value, JsValue> {
             .search_params()
             .set("q", encode(q.as_str()).to_string().as_str());
     }
-    log(format!("{:?}", base_url.to_string()).as_str());
-
+    if let Some(q) = url.search_params().get("t") {
+        base_url
+            .search_params()
+            .set("t", encode(q.as_str()).to_string().as_str());
+    }
     let videos = match get_string(base_url.to_string().as_string().unwrap().as_str())
         .await?
         .as_string()
@@ -116,16 +119,4 @@ async fn load_video_list(offset: u32, limit: u32) -> Result<Value, JsValue> {
             return Err(err.to_string())?;
         }
     }
-}
-
-async fn load_videos(base_uri: &str, offset: u32, limit: u32) -> Result<JsValue, JsValue> {
-    let mut opts = RequestInit::new();
-    opts.method("GET");
-    let url = format!("{}/videos/list?offset={}&limit={}", base_uri, offset, limit);
-    let request = Request::new_with_str_and_init(&url, &opts)?;
-    let window = web_sys::window().unwrap();
-    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
-    let resp: Response = resp_value.dyn_into().unwrap();
-    let json = JsFuture::from(resp.text()?).await?;
-    Ok(json)
 }
