@@ -30,6 +30,13 @@
        else
             return `${x[1]}:u32`;
     }).join(","))
+    console.log(array
+    .map(x=>{
+        if(x[2]==='TEXT')
+            return `&video.${x[1]}`;
+        else
+            return `video.${x[1]}`;
+    }).join(","))
 })();
 
 /*

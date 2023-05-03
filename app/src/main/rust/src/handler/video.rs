@@ -1,4 +1,8 @@
 use crate::data::video::{Video, VideoData};
+use crate::db::query_cookie::execute_query_cookie;
+use crate::db::update_video::execute_update_video;
+use crate::db::update_video_file::execute_update_video_file;
+use crate::db::update_video_views::execute_update_video_views;
 use crate::server::Database;
 use crate::utils::date::get_epoch_secs;
 use rocket::http::Status;
@@ -7,9 +11,7 @@ use rocket::State;
 use rusqlite::{params, Connection};
 use std::sync::Arc;
 use std::sync::MutexGuard;
-use crate::db::update_video_views::execute_update_video_views;
-use crate::db::query_cookie::execute_query_cookie;
-use crate::db::update_video_file::execute_update_video_file;
+
 fn query(
     conn: &MutexGuard<Connection>,
     uri: &str,
@@ -42,7 +44,6 @@ video.update_at
         Ok(())
     })
 }
-
 
 fn read_from_database(
     url: &str,
@@ -93,7 +94,6 @@ async fn create_video(
     }
 }
 
-
 #[get("/video/fetch?<url>")]
 pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
     let _ = execute_update_video_views(&db.0.lock().unwrap(), url.as_str());
@@ -114,7 +114,11 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     match create_video(&url, !is_update, cookie.as_str()).await {
         Ok(video) => {
             if is_update {
-                match execute_update_video_file(&db.0.lock().unwrap(), video.uri.as_str(),video.file.as_str()) {
+                match execute_update_video_file(
+                    &db.0.lock().unwrap(),
+                    video.uri.as_str(),
+                    video.file.as_str(),
+                ) {
                     Ok(_) => {}
                     Err(err) => {
                         log::error!("{}", err);
@@ -163,5 +167,33 @@ pub fn get_url(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> {
         ) {
         Ok(value) => Ok(value),
         Err(_) => Err(Status::InternalServerError),
+    }
+}
+#[get("/video/update?<url>")]
+pub async fn update(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
+    let cookie = if url.contains("/vodplay/") {
+        execute_query_cookie(&db.0.lock().unwrap())
+    } else {
+        String::new()
+    };
+    match create_video(&url, true, cookie.as_str()).await {
+        Ok(video) => {
+            let _ = execute_update_video(
+                &db.0.lock().unwrap(),
+                video.id,
+                &video.uri,
+                &video.title,
+                &video.subtitle,
+                &video.file,
+                &video.image,
+                video.source_type,
+                video.hidden,
+                get_epoch_secs(),
+            );
+            Ok(String::from("Success"))
+        }
+        Err(_err) => {
+            return Err(Status::InternalServerError);
+        }
     }
 }
