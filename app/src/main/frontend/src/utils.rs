@@ -204,3 +204,30 @@ pub fn get_base_url() -> Result<Url, JsValue> {
         Url::new(format!("{}{}", location.protocol().unwrap(), host).as_str())
     }
 }
+pub fn get_search_params(name: &str) -> Result<String, JsValue> {
+    let window = match web_sys::window() {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("window"));
+        }
+    };
+    let href = window.location().href()?;
+    let url = Url::new(href.as_str())?;
+    let value = match url.search_params().get(name) {
+        Some(v) => v,
+        None => {
+            return Err(JsValue::from_str("name"));
+        }
+    };
+    Ok(value)
+}
+pub fn format_duration(duration: u64) -> String {
+    let seconds = duration % 60;
+    let minutes = (duration / 60) % 60;
+    let hours = (duration / 60) / 60;
+    if hours > 0 {
+        format!("{}:{:0>2}:{:0>2}", hours, minutes, seconds)
+    } else {
+        format!("{}:{:0>2}", minutes, seconds)
+    }
+}

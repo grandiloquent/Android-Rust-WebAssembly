@@ -36,9 +36,9 @@ fn initialize_database(conn: &Connection) {
 	"uri"	TEXT NOT NULL,
 	"title"	TEXT,
     "subtitle"	TEXT,
-    "duration"	INTEGER,
 	"file"	TEXT,
 	"image"	TEXT,
+    "duration"	INTEGER,
 	"source_type"	INTEGER,
     "views"	INTEGER,
 	"hidden"	INTEGER,
@@ -74,11 +74,26 @@ fn initialize_database(conn: &Connection) {
     //     [],
     // );
     // });
-    // conn.execute_batch(r#"BEGIN;
-    // delete from video where id in (select id from (SELECT id, COUNT(*) c FROM video GROUP BY uri HAVING c > 1));
-    // CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);
-    // END;"#);
-    
+    //delete from video where id in (select id from (SELECT id, COUNT(*) c FROM video GROUP BY uri HAVING c > 1));
+//    match  conn.execute_batch(r#"BEGIN;
+//ALTER TABLE video RENAME TO temp_video;
+//CREATE TABLE "video" ("id" INTEGER NOT NULL UNIQUE,"uri" TEXT NOT NULL,"title" TEXT,"subtitle" TEXT,"file" TEXT,"image" TEXT,"duration" INTEGER,"source_type" INTEGER,"views" INTEGER,"hidden" INTEGER,"create_at" INTEGER,"update_at" INTEGER,PRIMARY KEY("id" AUTOINCREMENT));
+//INSERT INTO video(id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) SELECT id,uri,title,subtitle,file,image,source_type,hidden,create_at,update_at FROM temp_video;
+//DROP TABLE temp_video;
+//    COMMIT;"#){
+//        Ok(_)=>{},
+//        Err(err)=>{
+//            log::error!("{}",err.to_string());
+//        }
+//    } ;
+//    match  conn.execute_batch(r#"BEGIN;
+//     CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);
+//     COMMIT;"#){
+//        Ok(_)=>{},
+//        Err(err)=>{
+//            log::error!("{}",err.to_string());
+//        }
+//    } ;
 }
 
 #[tokio::main]
@@ -92,7 +107,7 @@ pub async fn run_server(srv: Server, ass: AssetManager) {
         .manage(Arc::new(Database(Arc::new(Mutex::new(conn)))))
         .mount(
             "/",
-            routes![handler::db::list,handler::db::search,handler::db::delete_video,handler::db::hidden_video,handler::files::files,handler::html::file,handler::video::parse,handler::video::get,handler::video::get_url,handler::video::update,handler::video::update_fav],
+            routes![handler::db::list,handler::db::search,handler::db::delete_video,handler::db::hidden_video,handler::files::files,handler::html::file,handler::video::parse,handler::video::get,handler::video::get_url,handler::video::update,handler::video::update_fav,handler::video::update_duration],
         )
         .register("/", catchers![not_found]);
     let _ = server.launch().await;

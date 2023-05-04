@@ -8,7 +8,7 @@ fn list_videos(
     offset: u32,
     limit: u32,
 ) -> Result<Vec<Video>, rusqlite::Error> {
-    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video WHERE hidden = 0 and source_type<10 ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
+    let mut query = conn.prepare("SELECT id,uri,title,image,duration,source_type,update_at FROM video WHERE hidden = 0 and source_type<10 ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
     let mut rows = query.query(params![limit, offset])?;
     let mut v = Vec::<Video>::new();
     while let Some(row) = rows.next()? {
@@ -17,8 +17,9 @@ fn list_videos(
             uri: row.get(1)?,
             title: row.get(2)?,
             image: row.get(3)?,
-            source_type: row.get(4)?,
-            update_at: row.get(5)?,
+            duration:row.get(4)?,
+            source_type: row.get(5)?,
+            update_at: row.get(6)?,
         });
     }
     Ok(v)
@@ -28,7 +29,7 @@ fn list_videos_hidden(
     offset: u32,
     limit: u32,
 ) -> Result<Vec<Video>, rusqlite::Error> {
-    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video WHERE hidden >0 ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
+    let mut query = conn.prepare("SELECT id,uri,title,image,duration,source_type,update_at FROM video WHERE hidden >0 ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
     let mut rows = query.query(params![limit, offset])?;
     let mut v = Vec::<Video>::new();
     while let Some(row) = rows.next()? {
@@ -37,8 +38,9 @@ fn list_videos_hidden(
             uri: row.get(1)?,
             title: row.get(2)?,
             image: row.get(3)?,
-            source_type: row.get(4)?,
-            update_at: row.get(5)?,
+            duration:row.get(4)?,
+            source_type: row.get(5)?,
+            update_at: row.get(6)?,
         });
     }
     Ok(v)
@@ -49,7 +51,7 @@ fn list_videos_by_source_type(
     limit: u32,
     t: u32,
 ) -> Result<Vec<Video>, rusqlite::Error> {
-    let mut query = conn.prepare("SELECT id,uri,title,image,source_type,update_at FROM video WHERE hidden = 0 and source_type=? ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
+    let mut query = conn.prepare("SELECT id,uri,title,image,duration,source_type,update_at FROM video WHERE hidden = 0 and source_type=? ORDER BY update_at DESC LIMIT ? OFFSET ?")?;
     let mut rows = query.query(params![t, limit, offset])?;
     let mut v = Vec::<Video>::new();
     while let Some(row) = rows.next()? {
@@ -58,8 +60,9 @@ fn list_videos_by_source_type(
             uri: row.get(1)?,
             title: row.get(2)?,
             image: row.get(3)?,
-            source_type: row.get(4)?,
-            update_at: row.get(5)?,
+            duration:row.get(5)?,
+            source_type: row.get(6)?,
+            update_at: row.get(7)?,
         });
     }
     Ok(v)

@@ -1,8 +1,10 @@
 use std::rc::Rc;
 
-use crate::log;
-use crate::utils::{adjust_size};
+use crate::utils::{adjust_size, get_base_uri, get_search_params};
+use crate::{log, utils::get_string};
+use urlencoding::encode;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
+use wasm_bindgen_futures::spawn_local;
 use web_sys::{Document, Element, HtmlElement, HtmlVideoElement};
 pub fn append_bottom(document: &Document) -> HtmlElement {
     let div = build_div(document);
@@ -66,7 +68,7 @@ pub fn append_bottom(document: &Document) -> HtmlElement {
         let s = div.style();
         let _ = s.set_property("color", "#fff");
         let _ = s.set_property("opacity", ".7");
-        div.set_text_content(Some("0:00"));
+        div.set_text_content(Some(""));
         div
     };
     let _ = subdiv.append_child(&second);
@@ -77,7 +79,6 @@ pub fn append_bottom(document: &Document) -> HtmlElement {
     let progress_bar_line = build_progress_bar_line(document);
     let _ = div.append_child(&progress_bar_line);
 
-   
     div
 }
 pub fn append_middle(document: &Document) -> HtmlElement {
@@ -242,18 +243,34 @@ pub fn get_video(document: &Document) -> Result<HtmlVideoElement, JsValue> {
 pub fn set_ondurationchange(second: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
     let v = video.clone();
     let ondurationchange = Closure::wrap(Box::new(move || {
-        let duration = v.duration() as i32;
-        let seconds = duration % 60;
-        let minutes = (duration / 60) % 60;
-        let hours = (duration / 60) / 60;
-        if hours > 0 {
-            second.set_text_content(Some(
-                format!("{}:{:0>2}:{:0>2}", hours, minutes, seconds).as_str(),
-            ));
-        } else {
-            second.set_text_content(Some(format!("{}:{:0>2}", minutes, seconds).as_str()));
+        if second.text_content().unwrap_or(String::new()).trim().is_empty(){
+            let duration = v.duration() as u32;
+
+            let seconds = duration % 60;
+            let minutes = (duration / 60) % 60;
+            let hours = (duration / 60) / 60;
+            if hours > 0 {
+                second.set_text_content(Some(
+                    format!("{}:{:0>2}:{:0>2}", hours, minutes, seconds).as_str(),
+                ));
+            } else {
+                second.set_text_content(Some(format!("{}:{:0>2}", minutes, seconds).as_str()));
+            }
+            spawn_local(async move {
+                
+                let url = format!(
+                    "{}/video/duration?url={}&duration={}",
+                    get_base_uri(),
+                    encode(get_search_params("url").unwrap().as_str()),
+                    duration
+                );
+                let _ = get_string(url.as_str()).await;
+            });
         }
-        adjust_size(&v);
+
+        if v.video_height() > 0 {
+            adjust_size(&v);
+        }
     }) as Box<dyn FnMut()>);
     video.set_ondurationchange(Some(ondurationchange.as_ref().unchecked_ref()));
     ondurationchange.forget();

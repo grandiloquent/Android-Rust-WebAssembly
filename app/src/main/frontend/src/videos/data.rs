@@ -5,11 +5,8 @@ use send_wrapper::SendWrapper;
 use serde_json::Value;
 use urlencoding::encode;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
-use wasm_bindgen_futures::{spawn_local, JsFuture};
-use web_sys::{
-    Element, Event, IntersectionObserver, IntersectionObserverEntry, Request, RequestInit,
-    Response, Url,
-};
+use wasm_bindgen_futures::spawn_local;
+use web_sys::{Element, Event, IntersectionObserver, IntersectionObserverEntry, Url};
 
 use crate::{
     log,

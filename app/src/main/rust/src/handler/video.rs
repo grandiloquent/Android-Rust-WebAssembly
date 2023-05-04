@@ -205,3 +205,17 @@ pub fn update_fav(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> 
         Err(_) => Err(Status::InternalServerError),
     }
 }
+#[get("/video/duration?<duration>&<url>")]
+pub fn update_duration(
+    duration: u32,
+    url: String,
+    db: &State<Arc<Database>>,
+) -> Result<String, Status> {
+    match db.0.lock().unwrap().execute(
+        "update video set duration = ? where uri = ?",
+        params![duration,url.as_str()],
+    ) {
+        Ok(value) => Ok(value.to_string()),
+        Err(_) => Err(Status::InternalServerError),
+    }
+}

@@ -6,7 +6,7 @@ use crate::db::video::Video;
 
 fn search_videos(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::Error> {
     let mut query = conn.prepare(
-        "SELECT id,uri,title,image,source_type,update_at FROM video ORDER BY update_at DESC",
+        "SELECT id,uri,title,image,duration,source_type,update_at FROM video ORDER BY update_at DESC",
     )?;
     let mut rows = query.query(params![])?;
     let mut v = Vec::<Video>::new();
@@ -16,8 +16,9 @@ fn search_videos(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::
             uri: row.get(1)?,
             title: row.get(2)?,
             image: row.get(3)?,
-            source_type: row.get(4)?,
-            update_at: row.get(5)?,
+            duration:row.get(4)?,
+            source_type: row.get(5)?,
+            update_at: row.get(6)?,
         });
     }
     Ok(v)

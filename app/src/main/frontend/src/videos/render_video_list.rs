@@ -3,19 +3,25 @@ use urlencoding::encode;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::Element;
 
-use crate::utils::{create_wrapper_element, query_element};
+use crate::utils::{create_wrapper_element, format_duration, query_element};
 
 use super::data::HANLDER;
 
 pub fn render_video_list(item: &Vec<Value>) -> Result<(), JsValue> {
     let parent = query_element(".media-items")?;
+
     let s=item.iter().map(|x|{
+        let duration=match x["duration"].as_u64() {
+            Some(v)=>format!(r#"<div class="video-thumbnail-overlay">{}</div>"#,format_duration(v)),
+            None=>String::new(),
+        };
         format!(r#"<div class="media_item"><a class="media_item_thumbnail_container"
         href="/video.html?url={3}">
         <div class="video_thumbnail_container_large">
             <div class="video_thumbnail_bg"></div><img class="video_thumbnail_img"
                 src="{1}">
         </div>
+        {4}
     </a>
     <div class="details">
         <div class="media_channel"></div>
@@ -38,7 +44,7 @@ pub fn render_video_list(item: &Vec<Value>) -> Result<(), JsValue> {
         x["id"].as_i64().unwrap(),
         x["image"].as_str().unwrap(),
         x["title"].as_str().unwrap(),
-        encode(x["uri"].as_str().unwrap())
+        encode(x["uri"].as_str().unwrap()),duration
     )
     }).collect::<Vec<String>>()
     .join("");

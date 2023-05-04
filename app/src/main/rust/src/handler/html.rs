@@ -12,7 +12,6 @@ pub fn file(b: PathBuf, cache: &State<Arc<Cache>>) -> Asset {
             Asset::default()
         }
         Some(data) => {
-            log::error!("{}",b.to_str().unwrap_or(""));
             Asset {
                 data,
                 content_type: extension_to_mime(b.to_str().unwrap_or("").to_string().substring_after_last(".").as_str()),
