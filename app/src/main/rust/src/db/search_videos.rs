@@ -1,8 +1,8 @@
+use crate::db::video::Video;
 use rocket::serde::json::serde_json;
 use rusqlite::{params, Connection};
 use std::error::Error;
 use std::sync::MutexGuard;
-use crate::db::video::Video;
 
 fn search_videos(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::Error> {
     let mut query = conn.prepare(
@@ -16,7 +16,7 @@ fn search_videos(conn: &MutexGuard<Connection>) -> Result<Vec<Video>, rusqlite::
             uri: row.get(1)?,
             title: row.get(2)?,
             image: row.get(3)?,
-            duration:row.get(4)?,
+            duration: row.get(4)?,
             source_type: row.get(5)?,
             update_at: row.get(6)?,
         });

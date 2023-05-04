@@ -86,9 +86,8 @@ fn initialize_database(conn: &Connection) {
 //            log::error!("{}",err.to_string());
 //        }
 //    } ;
-//    match  conn.execute_batch(r#"BEGIN;
-//     CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC);
-//     COMMIT;"#){
+//    conn.execute(r#"delete from video where id in (select id from (SELECT id, COUNT(*) c FROM video GROUP BY uri HAVING c > 1))"#, []);
+//    match  conn.execute(r#"CREATE UNIQUE INDEX IF NOT EXISTS "uri_idx_unique" ON "video" ("uri" ASC)"#,[]){
 //        Ok(_)=>{},
 //        Err(err)=>{
 //            log::error!("{}",err.to_string());

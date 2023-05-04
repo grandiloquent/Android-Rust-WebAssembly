@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Process;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class ServerService extends Service {
         intent.putExtra("address", address);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Notification notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("本地服务器").setSmallIcon(android.R.drawable.stat_sys_download).addAction(getAction(piDismiss))
-                .setContentIntent(PendingIntent.getActivity(context, 0, intent, 0))
+                .setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE))
                 .build();
         context.startForeground(1, notification);
     }
@@ -86,7 +87,7 @@ public class ServerService extends Service {
     public static PendingIntent getPendingIntentDismiss(Context context) {
         Intent dismissIntent = new Intent(context, ServerService.class);
         dismissIntent.setAction(ACTION_DISMISS);
-        return PendingIntent.getService(context, 0, dismissIntent, 0);
+        return PendingIntent.getService(context, 0, dismissIntent, PendingIntent.FLAG_IMMUTABLE);
     }
 
     public String getString(String key) {
@@ -174,9 +175,12 @@ public class ServerService extends Service {
         initialSharedPreferences();
         createNotificationChannel(this);
         mAddress = startServer(this, getAssets());
-        createNotification(this,mAddress);
+        Log.e(TAG, mAddress);
+        createNotification(this, mAddress);
         launchActivity();
     }
+
+    private final String TAG = "TAG/" + getClass().getSimpleName();
 
     String mAddress;
 

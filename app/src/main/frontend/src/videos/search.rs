@@ -76,7 +76,7 @@ pub fn bind_input(document: &Document, share: Rc<Element>) -> Result<(), JsValue
             if e.key() == "Enter" {
                 let l = web_sys::window().unwrap().location();
                 let url = Url::new(l.href().unwrap().as_str()).unwrap();
-                url.search_params().set("q", &encode(ev.value().as_str()));
+                url.search_params().set("q", ev.value().as_str());
                 let _ = l.set_href(url.to_string().as_string().unwrap().as_str());
             }
         }) as Box<dyn FnMut(KeyboardEvent)>);
