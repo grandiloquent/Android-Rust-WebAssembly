@@ -68,7 +68,7 @@ pub fn append_bottom(document: &Document) -> HtmlElement {
         let s = div.style();
         let _ = s.set_property("color", "#fff");
         let _ = s.set_property("opacity", ".7");
-        div.set_text_content(Some(""));
+        div.set_text_content(Some("0:00"));
         div
     };
     let _ = subdiv.append_child(&second);
@@ -243,8 +243,9 @@ pub fn get_video(document: &Document) -> Result<HtmlVideoElement, JsValue> {
 pub fn set_ondurationchange(second: Rc<HtmlElement>, video: Rc<HtmlVideoElement>) {
     let v = video.clone();
     let ondurationchange = Closure::wrap(Box::new(move || {
-        if second.text_content().unwrap_or(String::new()).trim().is_empty(){
-            let duration = v.duration() as u32;
+        let duration = v.duration() as u32;
+
+        if  duration>0 && second.text_content().unwrap()=="0:00" {
 
             let seconds = duration % 60;
             let minutes = (duration / 60) % 60;

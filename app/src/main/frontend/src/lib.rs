@@ -118,7 +118,7 @@ pub fn start(src: &str) {
     });
 
     video.set_src(src);
-    append_track(&document, v.clone(), src);
+    //append_track(&document, v.clone(), src);
 
     let _ = bind_fast_forward(&document, v.clone());
     //video.remove_event_listener_with_callback("play", onplay.as_ref().unchecked_ref());
