@@ -41,10 +41,13 @@ public class ServerService extends Service {
 
     SharedPreferences mSharedPreferences;
 
-    public static void createNotification(ServerService context) {
-        Notification notification = null;
+    public static void createNotification(ServerService context, String address) {
         PendingIntent piDismiss = getPendingIntentDismiss(context);
-        notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("本地服务器").setSmallIcon(android.R.drawable.stat_sys_download).addAction(getAction(piDismiss)).build();
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("address", address);
+        Notification notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("本地服务器").setSmallIcon(android.R.drawable.stat_sys_download).addAction(getAction(piDismiss))
+                .setContentIntent(PendingIntent.getActivity(context, 0, intent, 0))
+                .build();
         context.startForeground(1, notification);
     }
 
@@ -169,10 +172,17 @@ public class ServerService extends Service {
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         initialSharedPreferences();
         createNotificationChannel(this);
-        createNotification(this);
-        String address = startServer(this, getAssets());
+        mAddress = startServer(this, getAssets());
+        createNotification(this,mAddress);
+        launchActivity();
+    }
+
+    String mAddress;
+
+    private void launchActivity() {
+
         Intent intent = new Intent(START_SERVER_ACTION);
-        intent.putExtra("address", address);
+        intent.putExtra("address", mAddress);
         sendBroadcast(intent);
     }
 

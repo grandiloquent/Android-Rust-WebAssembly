@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
@@ -88,10 +89,15 @@ public class MainActivity extends Activity {
         mWebView = initializeWebView(this);
         setWebView(mWebView);
         launchServer(this);
+        if (getIntent().getStringExtra("address") != null) {
+            mWebView.loadUrl("http://" + getIntent().getStringExtra("address") + "/videos.html");
+
+        }
     }
 
     @Override
     protected void onStart() {
+
         super.onStart();
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -103,11 +109,14 @@ public class MainActivity extends Activity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(START_SERVER_ACTION);
         registerReceiver(mBroadcastReceiver, intentFilter);
+
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         initialize();
     }
 

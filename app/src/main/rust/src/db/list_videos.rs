@@ -60,9 +60,9 @@ fn list_videos_by_source_type(
             uri: row.get(1)?,
             title: row.get(2)?,
             image: row.get(3)?,
-            duration:row.get(5)?,
-            source_type: row.get(6)?,
-            update_at: row.get(7)?,
+            duration:row.get(4)?,
+            source_type: row.get(5)?,
+            update_at: row.get(6)?,
         });
     }
     Ok(v)
