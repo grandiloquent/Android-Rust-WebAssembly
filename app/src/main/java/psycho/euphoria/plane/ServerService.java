@@ -45,6 +45,7 @@ public class ServerService extends Service {
         PendingIntent piDismiss = getPendingIntentDismiss(context);
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra("address", address);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Notification notification = new Notification.Builder(context, KP_NOTIFICATION_CHANNEL_ID).setContentTitle("本地服务器").setSmallIcon(android.R.drawable.stat_sys_download).addAction(getAction(piDismiss))
                 .setContentIntent(PendingIntent.getActivity(context, 0, intent, 0))
                 .build();
