@@ -76,6 +76,144 @@
             height: 56px;
             width: 56px;
         }
+
+        .dialog-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            justify-content: center;
+            z-index: 4;
+            margin: 0 40px;
+            padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .dialog {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            flex-direction: column;
+            max-height: 100%;
+            box-sizing: border-box;
+            padding: 16px;
+            margin: 0 auto;
+            overflow-x: hidden;
+            overflow-y: auto;
+            font-size: 1.3rem;
+            color: #0f0f0f;
+            border: none;
+            min-width: 250px;
+            max-width: 356px;
+            box-shadow: 0 0 24px 12px rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            background-color: #fff;
+
+        }
+
+        .dialog-header {
+
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .dialog-title {
+            margin: 0 0 3px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.25;
+            text-overflow: ellipsis;
+            font-weight: normal;
+            font-size: 1.8rem;
+            -webkit-line-clamp: initial;
+            max-height: none;
+
+        }
+
+        .dialog-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 100vh;
+
+        }
+
+        .dialog-buttons {
+
+            flex-shrink: 0;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: end;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.3);
+
+        }
+
+        input,
+        textarea {
+            background-color: transparent;
+            padding-bottom: 4px;
+            outline: none;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 0;
+            margin-bottom: 1px;
+            font: inherit;
+            color: #0f0f0f
+        }
+
+        input::-webkit-input-placeholder,
+        textarea::-webkit-input-placeholder {
+            color: #606060;
+            opacity: 1
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #606060;
+            opacity: 1
+        }
+
+        textarea {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 8.4rem;
+            width: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 8px
+        }
+
+        input {
+            border-bottom: 1px solid #737373;
+            text-overflow: ellipsis
+        }
+
+        input:focus {
+            margin-bottom: 0;
+            border-bottom-width: 2px;
+            border-bottom-color: #0f0f0f
+        }
     </style>
     <script src="https://fastly.jsdelivr.net/npm/hls.js@1"></script>
 </head>
@@ -145,6 +283,23 @@
         </div>
     </div>
     <video style="position: absolute;"></video>
+
+    <div class="dialog-container" style="display: none;">
+        <div class="dialog">
+            <div class="dialog-header">
+                <h2 class="dialog-title">跳转</h2>
+            </div>
+            <div class="dialog-body">
+                <input placeholder="0:00:00" style="width: 100%;">
+            </div>
+            <div class="dialog-buttons">
+                <div style="padding: 0 16px;height: 36px;font-size: 14px;line-height: 36px;">
+                    确认
+                </div>
+            </div>
+        </div>
+        <div class="dialog-overlay"></div>
+    </div>
 
     <script src="video.js"></script>
 </body>

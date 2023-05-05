@@ -132,6 +132,7 @@ async function initialize() {
     video.addEventListener('pause', pause());
 
     initializeSeek(video, first);
+    initializeSeekDialog(video);
     document.getElementById('play').addEventListener('click', evt => {
         if (video.paused) {
             video.play();
@@ -166,4 +167,33 @@ function startTimer() {
         bottom.style.display = "none";
     }, 10000);
     return timer;
+}
+
+function initializeSeekDialog(video) {
+    const dialogContainer = document.querySelector('.dialog-container');
+    dialogContainer.querySelector('.dialog-overlay')
+        .addEventListener('click', evt => {
+            dialogContainer.style.display = 'none';
+        });
+    dialogContainer.querySelector('.dialog-buttons>div')
+        .addEventListener('click', evt => {
+            const values = /((\d+)h)?((\d+)m)?(\d+)s/.exec(dialogContainer.querySelector('input').value);
+            let currentTime = 0;
+            if (values[2]) {
+                currentTime += parseInt(values[2]) * 3600;
+            }
+            if (values[4]) {
+                currentTime += parseInt(values[4]) * 60;
+            }
+            if (values[5]) {
+                currentTime += parseInt(values[5]);
+            }
+            video.currentTime = currentTime;
+            dialogContainer.style.display = 'none';
+        });
+
+    document.querySelector('.playback_speed')
+        .addEventListener('click', evt => {
+            dialogContainer.style.display = 'flex';
+        })
 }
