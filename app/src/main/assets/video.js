@@ -1,12 +1,14 @@
 function adjustSize(video) {
     if (video.videoWidth > 0) {
-        let ratio = Math.min(window.innerWidth / video.videoWidth, window.innerHeight / video.videoHeight);
+        const w = Math.min(window.outerWidth, window.innerWidth);
+        const h = Math.min(window.outerHeight, window.innerHeight);
+        let ratio = Math.min(w / video.videoWidth, h / video.videoHeight);
         let height = video.videoHeight * ratio
         let width = video.videoWidth * ratio;
         video.style.width = `${width}px`;
         video.style.height = `${height}px`;
-        video.style.left = `${(window.innerWidth - width) / 2}px`;
-        video.style.top = `${(window.innerHeight - height) / 2}px`
+        video.style.left = `${(w - width) / 2}px`;
+        video.style.top = `${(h - height) / 2}px`
     }
 }
 function durationchange(video) {
@@ -37,23 +39,36 @@ async function getUrl(baseUri, url) {
     const res = await fetch(`${baseUri}/video/fetch?url=${encodeURIComponent(url)}`);
     return res.json();
 }
-function initializeSeek(video) {
-    const width = video.getBoundingClientRect().width;
-    const first = document.querySelector('.first');
-    let right, start = video.currentTime, dif = 0, timer;
-    video.addEventListener('touchstart', evt => {
-        video.pause();
-        right = (evt.touches[0].clientX >= width / 2);
-        clearInterval(timer);
-        timer = setInterval(() => {
-            dif += 1 * (right ? 1 : -1);
-            first.textContent = formatDuration(dif + start);
-        }, 100);
+function initializeSeek(video, first) {
+    // const width = video.getBoundingClientRect().width;
+    // let right, start, dif = 0, timer;
+    // video.addEventListener('touchstart', evt => {
+    //     video.pause();
+    //     start = video.currentTime;
+    //     right = (evt.touches[0].clientX >= width / 2);
+    //     clearInterval(timer);
+    //     timer = setInterval(() => {
+    //         dif += 1 * (right ? 1 : -1);
+    //         first.textContent = formatDuration(dif + start);
+    //         startTimer();
+    //     }, 100);
+    // })
+    // video.addEventListener('touchend', evt => {
+    //     clearInterval(timer);
+    //     console.log(dif + start)
+    //     video.currentTime = dif + start;
+    //     video.play();
+    // })
+
+    document.getElementById('back').addEventListener('click', evt => {
+        startTimer();
+        if (video.currentTime - 30 > 0)
+            video.currentTime = video.currentTime - 30;
     })
-    video.addEventListener('touchend', evt => {
-        clearInterval(timer);
-        video.currentTime = dif + start;
-        video.play();
+    document.getElementById('forward').addEventListener('click', evt => {
+        startTimer();
+        if (video.currentTime + 30 <= video.duration)
+            video.currentTime = video.currentTime + 30;
     })
 }
 function progress(video, loaded) {
@@ -73,9 +88,7 @@ async function readText() {
     return strings
 }
 function setSrc(video, src) {
-    console.log(src);
     if (!video.canPlayType('application/vnd.apple.mpegurl') && Hls.isSupported()) {
-        console.log("Hls");
         var hls = new Hls();
         hls.loadSource(src);
         hls.attachMedia(
@@ -92,6 +105,9 @@ function timeupdate(video, first) {
         }
     }
 }
+let timer;
+const middle = document.getElementById('middle');
+const bottom = document.getElementById('bottom');
 async function initialize() {
     const searchParams = new URL(window.location).searchParams;
     const url = searchParams.get("url");
@@ -106,27 +122,45 @@ async function initialize() {
     const video = document.querySelector('video');
     const first = document.getElementById('first');
     const second = document.getElementById('second');
-    const play = document.querySelector('.play');
-    const middle = document.getElementById('middle');
-    const bottom = document.getElementById('bottom');
+
     const loaded = document.querySelector('.progress_bar_loaded');
     setSrc(video, videoInformation.file);
-    initializeSeek(video);
     video.addEventListener('durationchange', durationchange(video, second));
     video.addEventListener('timeupdate', timeupdate(video, first));
     video.addEventListener('progress', progress(video, loaded));
-    let timer;
-    play.addEventListener('click', evt => {
+    video.addEventListener('play', play());
+    video.addEventListener('pause', pause());
+
+    initializeSeek(video, first);
+    document.getElementById('play').addEventListener('click', evt => {
         if (video.paused) {
             video.play();
-            timer = startTimer(timer, middle, bottom);
+            startTimer();
+        } else {
+            video.pause();
         }
-    })
+    });
+    video.addEventListener('click', evt => {
+        middle.style.display = "flex";
+        bottom.style.display = "flex";
+        startTimer();
+    });
+}
+function play() {
+    return evt => {
+        document.querySelector('#play path').setAttribute('d', 'M9,19H7V5H9ZM17,5H15V19h2Z');
+    }
+}
+function pause() {
+    return evt => {
+        document.querySelector('#play path').setAttribute('d', ' M6,4l12,8L6,20V4z');
+    }
 }
 initialize();
 
-function startTimer(timer, middle, bottom) {
-    clearTimeout(timer);
+function startTimer() {
+    if (timer)
+        clearTimeout(timer);
     timer = setTimeout(() => {
         middle.style.display = "none";
         bottom.style.display = "none";

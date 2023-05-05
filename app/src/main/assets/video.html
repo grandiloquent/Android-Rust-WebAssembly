@@ -33,19 +33,7 @@
             color: #fff;
             padding: 8px;
         }
-    </style>
-    <script src="https://fastly.jsdelivr.net/npm/hls.js@1"></script>
-</head>
 
-<body>
-    <div id="middle">
-        <div class="play"
-            style="color: rgb(255, 255, 255); fill: currentcolor; margin: 0px 60px; height: 56px; width: 56px;"><svg
-                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M6,4l12,8L6,20V4z"></path>
-            </svg></div>
-    </div>
-    <style>
         .video-times {
             display: flex;
             align-items: center;
@@ -80,7 +68,39 @@
             bottom: 0px;
             z-index: 1;
         }
+
+        #play {
+            color: rgb(255, 255, 255);
+            fill: currentcolor;
+            margin: 0px 60px;
+            height: 56px;
+            width: 56px;
+        }
     </style>
+    <script src="https://fastly.jsdelivr.net/npm/hls.js@1"></script>
+</head>
+
+<body>
+    <div id="middle">
+        <div id="back" style="width:36px;height: 36px;color: #fff;fill: currentColor;">
+            <svg style="width:36px;height: 36px;" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"
+                width="24">
+                <path d="M19,6L9,12l10,6V6L19,6z M7,6H5v12h2V6z"></path>
+            </svg>
+        </div>
+        <div id="play">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M6,4l12,8L6,20V4z"></path>
+            </svg>
+        </div>
+        <div id="forward" style="width:36px;height: 36px;color: #fff;fill: currentColor;">
+            <svg style="width:36px;height: 36px;" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"
+                width="24">
+                <path d="M5,18l10-6L5,6V18L5,18z M19,6h-2v12h2V6z"></path>
+            </svg>
+        </div>
+    </div>
+
     <div id="bottom">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="video-times">
@@ -89,12 +109,14 @@
                 <div id="second" style="color: rgb(255, 255, 255); opacity: 0.7;">00:00</div>
             </div>
             <div style="flex-grow: 1;"></div>
-            <div class="playback_speed button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <div class="playback_speed button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M10.6,9.2v5.6l4.2-2.8L10.6,9.2L10.6,9.2z M8,7.1L7.6,6.5c1-0.8,2.3-1.4,3.7-1.5l0.1,0.7C10.1,5.8,9,6.3,8,7.1z M7.1,8
         L6.5,7.6c-0.8,1-1.4,2.3-1.5,3.7l0.7,0.1C5.8,10.1,6.3,9,7.1,8z M7.1,16c-0.8-1-1.3-2.2-1.4-3.4L5,12.7c0.1,1.4,0.7,2.7,1.5,3.8
         L7.1,16z M11.4,18.3C10.1,18.2,9,17.7,8,16.9l-0.4,0.6c1,0.8,2.3,1.4,3.7,1.5L11.4,18.3z M19,12c0-3.6-2.7-6.6-6.3-7l-0.1,0.7
         c3.2,0.4,5.7,3,5.7,6.3s-2.4,6-5.7,6.3l0.1,0.7C16.3,18.6,19,15.6,19,12z"></path>
-                </svg></div>
+                </svg>
+            </div>
             <div class="random button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
                         d="M14.3,16.3H19v0.8h-4.7V16.3z M11.2,16.3H5v0.8h6.2v1.6H12v-1.6v-0.8v-1.6h-0.8V16.3z M13.6,9.3h0.8V7.7V6.9V5.4h-0.8v1.6H5
