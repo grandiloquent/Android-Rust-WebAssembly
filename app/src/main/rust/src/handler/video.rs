@@ -153,10 +153,19 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     };
 }
 #[get("/video/get?<url>")]
-pub async fn get(url: String) -> Status {
-    // log::error!("get: {}", url);
-    // let video = Video::five_two_ck(url.as_str(), true).await.unwrap();
-    // log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
+pub async fn get(url: String, db: &State<Arc<Database>>) -> Status {
+    log::error!("get: {}", url);
+    let cookie = if url.contains("/vodplay/") {
+        execute_query_cookie(&db.0.lock().unwrap(),5)
+    }else if url.contains("jable.tv/") {
+        execute_query_cookie(&db.0.lock().unwrap(),7)
+    } else if url.contains("mahua11.com") {
+        execute_query_cookie(&db.0.lock().unwrap(),6)
+    }else {
+        String::new()
+    };
+    let video = Video::ma_hua(url.as_str(),cookie.as_str(), true).await.unwrap();
+    log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
     Status::Ok
 }
 #[get("/video/url?<id>")]
