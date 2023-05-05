@@ -40,11 +40,11 @@ impl Video {
     pub async fn erotic_mv(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
         extract_erotic_mv(url, is_detail).await
     }
-    pub async fn ma_hua(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
-        extract_ma_hua(url, is_detail).await
+    pub async fn ma_hua(url: &str,cookie: &str ,is_detail: bool) -> Result<Self, Box<dyn Error>> {
+        extract_ma_hua(url,cookie, is_detail).await
     }
-    pub async fn twitter(url: &str,cookie: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
-        extract_twitter(url,cookie, is_detail).await
+    pub async fn twitter(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
+        extract_twitter(url, is_detail).await
     }
     pub async fn jable(url: &str, cookie: &str,is_detail: bool) -> Result<Self, Box<dyn Error>> {
         extract_jable(url, cookie, is_detail).await
