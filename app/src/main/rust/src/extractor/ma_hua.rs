@@ -17,8 +17,8 @@ async fn fetch_ma_hua<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<Str
     }
     client.send().await?.text().await
 }
-pub async fn extract_ma_hua(url: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
-    let config = Config::new(Some("http://127.0.0.1:10809"), Some("PHPSESSID=ug5qdi2pd3kcc53m5a6b2jqm9i; kt_ips=43.163.192.239; kt_tcookie=1; kt_is_visited=1; kt_qparams=id%3D14294%26dir%3D300022"));
+pub async fn extract_ma_hua(url: &str, cookie: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
+    let config = Config::new(Some("http://127.0.0.1:10809"), Some(cookie));
     let res = match fetch_ma_hua(&url, &config).await {
         Ok(res) => res,
         Err(err) => {

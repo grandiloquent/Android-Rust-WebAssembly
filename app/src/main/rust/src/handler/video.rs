@@ -86,7 +86,7 @@ async fn create_video(
     } else if url.contains("eroticmv.com") {
         Video::erotic_mv(&url, is_detail).await
     } else if url.contains("mahua11.com") {
-        Video::ma_hua(&url, is_detail).await
+        Video::ma_hua(&url,  cookie,is_detail).await
     } else if url.contains("/vodplay/") {
         Video::five_two_ck(&url, cookie, is_detail).await
     } else if url.contains("jable.tv/") {
@@ -112,7 +112,9 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
         execute_query_cookie(&db.0.lock().unwrap(),5)
     }else if url.contains("jable.tv/") {
         execute_query_cookie(&db.0.lock().unwrap(),7)
-    } else {
+    } else if url.contains("mahua11.com") {
+        execute_query_cookie(&db.0.lock().unwrap(),6)
+    }else {
         String::new()
     };
     match create_video(&url, !is_update, cookie.as_str()).await {

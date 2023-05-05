@@ -30,9 +30,11 @@ public class CustomWebViewClient extends WebViewClient {
         if (url.contains("/vodplay/") && (cookie = CookieManager.getInstance().getCookie(url)) != null) {
             new Database(mContext).insertCookie(5, cookie);
             Toast.makeText(mContext, "成功", Toast.LENGTH_SHORT).show();
-        }
-        if (url.contains("jable.tv/") && (cookie = CookieManager.getInstance().getCookie(url)) != null) {
+        } else if (url.contains("jable.tv/") && (cookie = CookieManager.getInstance().getCookie(url)) != null) {
             new Database(mContext).insertCookie(7, cookie);
+            Toast.makeText(mContext, "成功", Toast.LENGTH_SHORT).show();
+        } else if (url.contains("mahua11.com/") && (cookie = CookieManager.getInstance().getCookie(url)) != null) {
+            new Database(mContext).insertCookie(6, cookie);
             Toast.makeText(mContext, "成功", Toast.LENGTH_SHORT).show();
         }
     }
