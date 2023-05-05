@@ -38,8 +38,7 @@
 </head>
 
 <body>
-    <div
-        style="display: flex; align-items: center; justify-content: center; position: absolute; top: 50%; width: 100%; transform: translateY(-50%); z-index: 1;">
+    <div id="middle">
         <div class="play"
             style="color: rgb(255, 255, 255); fill: currentcolor; margin: 0px 60px; height: 56px; width: 56px;"><svg
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -59,9 +58,30 @@
             font-size: 1.2rem;
             color: rgb(255, 255, 255);
         }
+
+        #middle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        #bottom {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 0px;
+            z-index: 1;
+        }
     </style>
-    <div
-        style="display: flex; flex-direction: column; justify-content: space-between; position: fixed; left: 16px; right: 16px; bottom: 0px; z-index: 1;">
+    <div id="bottom">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="video-times">
                 <div id="first">00:00</div>

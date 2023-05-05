@@ -73,7 +73,9 @@ async function readText() {
     return strings
 }
 function setSrc(video, src) {
+    console.log(src);
     if (!video.canPlayType('application/vnd.apple.mpegurl') && Hls.isSupported()) {
+        console.log("Hls");
         var hls = new Hls();
         hls.loadSource(src);
         hls.attachMedia(
@@ -93,20 +95,41 @@ function timeupdate(video, first) {
 async function initialize() {
     const searchParams = new URL(window.location).searchParams;
     const url = searchParams.get("url");
-    const videoInformation = await getUrl(getBaseAddress(), url);
+    let videoInformation;
+    try {
+        videoInformation = await getUrl(getBaseAddress(), url);
+    } catch (error) {
+        console.log(error);
+        return;
+    }
     document.title = videoInformation.title;
     const video = document.querySelector('video');
     const first = document.getElementById('first');
     const second = document.getElementById('second');
     const play = document.querySelector('.play');
+    const middle = document.getElementById('middle');
+    const bottom = document.getElementById('bottom');
     const loaded = document.querySelector('.progress_bar_loaded');
     setSrc(video, videoInformation.file);
     initializeSeek(video);
     video.addEventListener('durationchange', durationchange(video, second));
     video.addEventListener('timeupdate', timeupdate(video, first));
     video.addEventListener('progress', progress(video, loaded));
+    let timer;
     play.addEventListener('click', evt => {
-        video.play();
+        if (video.paused) {
+            video.play();
+            timer = startTimer(timer, middle, bottom);
+        }
     })
 }
 initialize();
+
+function startTimer(timer, middle, bottom) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+        middle.style.display = "none";
+        bottom.style.display = "none";
+    }, 10000);
+    return timer;
+}

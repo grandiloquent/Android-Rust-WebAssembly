@@ -6,10 +6,9 @@ pub fn execute_update_video_file(
     conn: &MutexGuard<Connection>,
     uri: &str,
     file: &str,
-) -> Result<(), rusqlite::Error> {
-    conn.query_row(
+) -> Result<usize, rusqlite::Error> {
+    conn.execute(
         "UPDATE video SET file = ?,update_at = ? WHERE uri = ?",
-        params![uri, file, get_epoch_secs()],
-        |_r| Ok(()),
+        params![file, get_epoch_secs(), uri],
     )
 }
