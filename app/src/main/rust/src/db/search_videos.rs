@@ -30,10 +30,11 @@ pub fn execute_search_videos(
     offset: u32,
     limit: u32,
 ) -> Result<String, Box<dyn Error>> {
+    let q = urlencoding::decode(q).unwrap().into_owned();
     let v = search_videos(conn)?;
     let v = v
         .iter()
-        .filter(|video| video.uri.contains(q) || video.title.contains(q))
+        .filter(|video| video.uri.contains(q.as_str()) || video.title.contains(q.as_str()))
         .collect::<Vec<&Video>>();
     match serde_json::to_string(&v) {
         Ok(v) => Ok(v),

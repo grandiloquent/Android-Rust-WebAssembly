@@ -126,9 +126,12 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
                 };
             } else {
                 if video.title.is_empty() || video.image.is_empty() {
-                    return Err(Status::InternalServerError);
+                    return Err(Status::NoContent);
                 }
-                let _ = insert(&db.0.lock().unwrap(), &video);
+                if let Err(err) = insert(&db.0.lock().unwrap(), &video) {
+                    log::error!("{}", err.to_string());
+                    return Err(Status::Conflict);
+                }
             }
             return Ok(serde_json::to_string(&VideoData {
                 title: video.title,
@@ -138,6 +141,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
             .unwrap());
         }
         Err(_err) => {
+            log::error!("{}", _err.to_string());
             return Err(Status::InternalServerError);
         }
     };
@@ -213,7 +217,7 @@ pub fn update_duration(
 ) -> Result<String, Status> {
     match db.0.lock().unwrap().execute(
         "update video set duration = ? where uri = ?",
-        params![duration,url.as_str()],
+        params![duration, url.as_str()],
     ) {
         Ok(value) => Ok(value.to_string()),
         Err(_) => Err(Status::InternalServerError),
