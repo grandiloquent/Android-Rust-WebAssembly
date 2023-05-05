@@ -1,1 +1,1 @@
-wasm-pack build --target web --out-dir C:\Users\psycho\Desktop\file\Plane\app\src\main\assets\pkg
+Set-Location C:\Users\psycho\Desktop\file\Plane\app\src\main\frontend;wasm-pack build --target web --out-dir C:\Users\psycho\Desktop\file\Plane\app\src\main\assets\pkg

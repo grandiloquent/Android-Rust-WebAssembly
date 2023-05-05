@@ -98,15 +98,15 @@ pub fn start(src: &str) {
         v.clone(),
     );
     set_onprogress(progress_bar_loaded.clone(), v.clone());
-    set_progress_click(
-        Rc::new(
-            bottom
-                .query_selector(".progress_bar_line")
-                .unwrap()
-                .unwrap(),
-        ),
-        v.clone(),
-    );
+    // set_progress_click(
+    //     Rc::new(
+    //         bottom
+    //             .query_selector(".progress_bar_line")
+    //             .unwrap()
+    //             .unwrap(),
+    //     ),
+    //     v.clone(),
+    // );
 
     bind_video(middle.clone(), bottom.clone(), &video);
 
