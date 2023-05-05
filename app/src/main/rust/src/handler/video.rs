@@ -29,8 +29,8 @@ fn query(
         },
     )
 }
-fn insert(conn: &MutexGuard<Connection>, video: &Video) -> Result<(), rusqlite::Error> {
-    conn.query_row("INSERT INTO video (uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) VALUES (?,?,?,?,?,?,?,?,?)", params![
+fn insert(conn: &MutexGuard<Connection>, video: &Video) -> Result<usize, rusqlite::Error> {
+    conn.execute("INSERT INTO video (uri,title,subtitle,file,image,source_type,hidden,create_at,update_at) VALUES (?,?,?,?,?,?,?,?,?)", params![
 video.uri,
 video.title,
 video.subtitle,
@@ -40,9 +40,7 @@ video.source_type,
 video.hidden,
 video.create_at,
 video.update_at
-    ], |_r| {
-        Ok(())
-    })
+    ])
 }
 
 fn read_from_database(
@@ -91,7 +89,7 @@ async fn create_video(
     } else if url.contains("/vodplay/") {
         Video::five_two_ck(&url, cookie, is_detail).await
     } else if url.contains("jable.tv/") {
-        Video::jable(&url,is_detail).await
+        Video::jable(&url, cookie,is_detail).await
     } else {
         Err("")?
     }
@@ -110,7 +108,9 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     }
 
     let cookie = if url.contains("/vodplay/") {
-        execute_query_cookie(&db.0.lock().unwrap())
+        execute_query_cookie(&db.0.lock().unwrap(),5)
+    }else if url.contains("jable.tv/") {
+        execute_query_cookie(&db.0.lock().unwrap(),7)
     } else {
         String::new()
     };
@@ -177,7 +177,7 @@ pub fn get_url(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> {
 #[get("/video/update?<url>")]
 pub async fn update(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
     let cookie = if url.contains("/vodplay/") {
-        execute_query_cookie(&db.0.lock().unwrap())
+        execute_query_cookie(&db.0.lock().unwrap(),5)
     } else {
         String::new()
     };

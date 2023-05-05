@@ -46,8 +46,8 @@ impl Video {
     pub async fn twitter(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
         extract_twitter(url, is_detail).await
     }
-    pub async fn jable(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
-        extract_jable(url, is_detail).await
+    pub async fn jable(url: &str, cookie: &str,is_detail: bool) -> Result<Self, Box<dyn Error>> {
+        extract_jable(url, cookie, is_detail).await
     }
     pub async fn five_two_ck(
         url: &str,

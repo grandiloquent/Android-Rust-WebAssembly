@@ -1,7 +1,6 @@
 use crate::data::video::Video;
 use crate::extractor::config::Config;
 use crate::utils::date::get_epoch_secs;
-use crate::utils::net::gen_ipv4;
 use crate::utils::string::{StringExt};
 use std::error::Error;
 
@@ -36,7 +35,7 @@ pub async fn extract_ma_hua(url: &str, is_detail: bool) -> Result<Video, Box<dyn
             .trim()
             .to_string();
         let image = res.substring_between("<meta property=\"og:image\" content=\"", "\"/>");
-        let source_type = 4;
+        let source_type = 6;
         let hidden = 0;
         let create_at = get_epoch_secs();
         let update_at = get_epoch_secs();

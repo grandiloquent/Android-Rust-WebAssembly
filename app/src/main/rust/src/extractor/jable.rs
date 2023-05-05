@@ -15,10 +15,12 @@ async fn fetch_jable<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<Stri
     if let Some(v) = config.cookie {
         client = client.header("Cookie", v);
     }
+    client = client.header("Referer", "https://jable.tv/")
+    .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
     client.send().await?.text().await
 }
-pub async fn extract_jable(url: &str, is_detail: bool) -> Result<Video, Box<dyn Error>> {
-    let config = Config::new(Some("http://127.0.0.1:10809"), None);
+pub async fn extract_jable(url: &str,  cookie: &str,is_detail: bool) -> Result<Video, Box<dyn Error>> {
+    let config = Config::new(Some("http://127.0.0.1:10809"), Some(cookie));
     let res = match fetch_jable(&url, &config).await {
         Ok(res) => res,
         Err(err) => {
@@ -27,6 +29,7 @@ pub async fn extract_jable(url: &str, is_detail: bool) -> Result<Video, Box<dyn 
             String::new()
         }
     };
+    // lf
     let file = res.substring_between(r#"var hlsUrl = '"#, r#"';"#);
     let uri = url.to_string();
     if is_detail {
@@ -35,7 +38,7 @@ pub async fn extract_jable(url: &str, is_detail: bool) -> Result<Video, Box<dyn 
             .trim()
             .to_string();
         let image = res.substring_between(r#"<meta property="og:image" content=""#, r#"""#);
-        let source_type = 4;
+        let source_type = 7;
         let hidden = 0;
         let create_at = get_epoch_secs();
         let update_at = get_epoch_secs();
