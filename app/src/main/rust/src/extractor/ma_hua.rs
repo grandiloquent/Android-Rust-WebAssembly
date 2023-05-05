@@ -34,7 +34,7 @@ pub async fn extract_ma_hua(
     let file = fetch_ma_hua_location( format!(
         "https://www.mahua11.com/get_file/{}",
         res.substring_between("<a href=\"https://www.mahua11.com/get_file/", "\"")
-    ),&config).await?;
+    ).as_str(),&config).await?;
     let uri = url.to_string();
     if is_detail {
         let title = res
@@ -75,7 +75,7 @@ pub async fn extract_ma_hua(
 }
 async fn fetch_ma_hua_location<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
     let mut client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::limit(0))
+        .redirect(reqwest::redirect::Policy::limited(0))
         .user_agent(config.user_agent);
     if let Some(proxy) = config.proxy {
         let proxy = reqwest::Proxy::http(proxy)?;
@@ -87,5 +87,5 @@ async fn fetch_ma_hua_location<'a>(url: &str, config: &Config<'a>) -> reqwest::R
         client = client.header("Cookie", v);
     }
     let res = client.send().await?;
-    Ok(res.headers().get("location"))
+    Ok(res.headers().get("location").unwrap().to_str().into())
 }
