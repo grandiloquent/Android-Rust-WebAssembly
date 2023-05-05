@@ -87,5 +87,5 @@ async fn fetch_ma_hua_location<'a>(url: &str, config: &Config<'a>) -> reqwest::R
         client = client.header("Cookie", v);
     }
     let res = client.send().await?;
-    Ok(res.headers().get("location").unwrap().to_str().into())
+    Ok(res.headers().get("location").unwrap().to_str().unwrap().to_string())
 }
