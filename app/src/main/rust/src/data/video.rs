@@ -4,6 +4,7 @@ use crate::extractor::ma_hua::extract_ma_hua;
 use crate::extractor::nine_porn::extract_nine_porn;
 use crate::extractor::twitter::extract_twitter;
 use crate::extractor::xvideos::extract_xvideos;
+use crate::extractor::jable::extract_jable;
 use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
 use std::error::Error;
@@ -44,6 +45,9 @@ impl Video {
     }
     pub async fn twitter(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
         extract_twitter(url, is_detail).await
+    }
+    pub async fn jable(url: &str, is_detail: bool) -> Result<Self, Box<dyn Error>> {
+        extract_jable(url, is_detail).await
     }
     pub async fn five_two_ck(
         url: &str,

@@ -15,8 +15,8 @@ pub fn render_video_list(item: &Vec<Value>) -> Result<(), JsValue> {
             Some(v)=>format!(r#"<div class="video-thumbnail-overlay">{}</div>"#,format_duration(v)),
             None=>String::new(),
         };
-        format!(r#"<div class="media_item"><a class="media_item_thumbnail_container"
-        href="/video.html?url={3}">
+        format!(r#"<div class="media_item" data-id="{0}"><a class="media_item_thumbnail_container"
+        href="/video.html?url={3}" target="_blank">
         <div class="video_thumbnail_container_large">
             <div class="video_thumbnail_bg"></div><img class="video_thumbnail_img"
                 src="{1}">
@@ -26,7 +26,7 @@ pub fn render_video_list(item: &Vec<Value>) -> Result<(), JsValue> {
     <div class="details">
         <div class="media_channel"></div>
         <div class="media_item_info">
-            <div class="media_item_metadata"><a class="a" href="/video.html?url={3}">
+            <div class="media_item_metadata"><a class="a" href="/video.html?url={3}" target="_blank">
                     <h3 class="media_item_headline">{2}</h3>
                     <div class="badge_and_byline_renderer"></div>
                 </a></div>

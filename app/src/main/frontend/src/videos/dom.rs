@@ -61,8 +61,10 @@ fn bind_action_delete(bottom_sheet_container: Rc<Element>) {
         };
         spawn_local(async move {
             let _ = delete_video(id.as_str()).await;
-            let window = web_sys::window().expect("global window does not exists");
-            let _ = window.location().reload();
+            query_element(format!(".media_item[data-id=\"{}\"]", id).as_str())
+                .unwrap()
+                .remove();
+            //let _ = window.location().reload();
         });
     }) as Box<dyn FnMut()>);
     let _ = element.add_event_listener_with_callback("click", handler.as_ref().dyn_ref().unwrap());

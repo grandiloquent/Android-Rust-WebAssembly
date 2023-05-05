@@ -895,11 +895,11 @@ ${CustomToast.getStyle()}
             document.querySelector('.tab-item-add').
                 addEventListener('click', async evt => {
                     const res = await fetch(`/video/fetch?url=${encodeURIComponent(await readText())}`);
-                    if (res.statusCode === 200)
+                    if (res.status === 200)
                         location.reload();
-                    else if (res.statusCode === 409) {
+                    else if (res.status === 409) {
                         document.getElementById('toast').setAttribute('message','已添加');
-                    } else if (res.statusCode === 204) {
+                    } else if (res.status === 204) {
                         document.getElementById('toast').setAttribute('message','请重试');
                     }
                 })

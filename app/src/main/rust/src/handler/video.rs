@@ -64,6 +64,7 @@ fn read_from_database(
     } else if url.contains("91porn.com")
         || url.contains("eroticmv.com")
         || url.starts_with("/vodplay/")
+        || url.contains("jable.tv/")
     {
         return Ok(serde_json::to_string(&VideoData {
             title: v.0,
@@ -89,6 +90,8 @@ async fn create_video(
         Video::ma_hua(&url, is_detail).await
     } else if url.contains("/vodplay/") {
         Video::five_two_ck(&url, cookie, is_detail).await
+    } else if url.contains("jable.tv/") {
+        Video::jable(&url,is_detail).await
     } else {
         Err("")?
     }

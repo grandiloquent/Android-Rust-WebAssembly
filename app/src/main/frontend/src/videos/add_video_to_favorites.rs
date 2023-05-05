@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::utils::{get_base_uri, hidden_element};
+use crate::utils::{get_base_uri, hidden_element, query_element};
 
 use wasm_bindgen::JsCast;
 use wasm_bindgen::{prelude::Closure, JsValue};
@@ -21,7 +21,9 @@ pub fn execute_add_video_to_favorites(bottom_sheet_container: Rc<Element>) -> Cl
         let id = get_data_id(bottom_sheet_container.clone()).unwrap();
         spawn_local(async move {
             let _ = favorite_video(id.as_str()).await;
-            let _ = web_sys::window().unwrap().location().reload();
+            query_element(format!(".media_item[data-id=\"{}\"]", id).as_str())
+                .unwrap()
+                .remove();
         });
     }) as Box<dyn FnMut()>)
 }

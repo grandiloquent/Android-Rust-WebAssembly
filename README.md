@@ -6,9 +6,12 @@ Set-Location  C:\Users\psycho\Desktop\file\Plane\app\src\main\rust;cargo ndk -t 
 
 ## 支持的视频平台
 
-|平台|VPN|
+|平台|解析|
 |---|---|
 |https://eroticmv.com/|是|
 |https://www.mahua11.com/|是|
 |https://91porn.com/|是|
 |https://www.xvideos.com/|是|
+|https://52ck.cc/|是|
+|https://jable.tv|是|
+ 
