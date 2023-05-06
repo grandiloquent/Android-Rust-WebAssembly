@@ -31,6 +31,9 @@ public class MainActivity extends Activity {
     private BroadcastReceiver mBroadcastReceiver;
     private String mUrl;
 
+    // 当尝试分享储存的文件时，会触发暴露文
+    // 件资源地址的异常，使用该方法可以关闭
+    // 这类安全检查
     public static void aroundFileUriExposedException() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
@@ -39,6 +42,8 @@ public class MainActivity extends Activity {
 
     public static WebView initializeWebView(MainActivity context) {
         WebView webView = new WebView(context);
+        // 注册可以通过 JavaScript 
+        // 调用的 Java 代码
         webView.addJavascriptInterface(new WebAppInterface(context), "NativeAndroid");
         webView.setWebViewClient(new CustomWebViewClient(context));
         webView.setWebChromeClient(new CustomWebChromeClient(context));

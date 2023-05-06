@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 
+// 一个用于将 Cookie 信息保存到
+//  SQLite 数据库的类
 public class Database extends SQLiteOpenHelper {
     public Database(Context context) {
         super(context, PreferenceManager.getDefaultSharedPreferences(context)

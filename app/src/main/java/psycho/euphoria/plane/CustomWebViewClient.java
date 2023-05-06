@@ -23,7 +23,6 @@ public class CustomWebViewClient extends WebViewClient {
         mContext = context;
     }
 
-
     @Override
     public void onPageFinished(WebView view, String url) {
         String cookie;
