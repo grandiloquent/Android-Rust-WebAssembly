@@ -214,13 +214,89 @@
             border-bottom-width: 2px;
             border-bottom-color: #0f0f0f
         }
+
+        #back {
+            width: 36px;
+            height: 36px;
+            color: #fff;
+            fill: currentColor;
+        }
+
+        #forward {
+            width: 36px;
+            height: 36px;
+            color: #fff;
+            fill: currentColor;
+        }
+
+        #second {
+            color: rgb(255, 255, 255);
+            opacity: 0.7;
+        }
+
+        .progress_bar_line {
+            height: 43px;
+            width: 100%;
+            align-items: center;
+            display: flex;
+        }
+
+        .progress_bar_background {
+            position: absolute;
+            height: 3px;
+            background-color: rgb(255, 255, 255);
+            opacity: 0.3;
+            width: 100%;
+        }
+
+        .progress_bar_loaded {
+            position: absolute;
+            height: 3px;
+            background-color: rgb(255, 255, 255);
+            opacity: 0.6;
+            width: 0.448738%;
+        }
+
+        .progress_bar_played {
+            position: absolute;
+            height: 3px;
+            background-color: rgb(255, 0, 0);
+        }
+
+        .progress_bar_playhead_wrapper {
+            position: absolute;
+            z-index: 0;
+        }
+
+        .progress_bar_playhead_dot {
+            display: block;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background-color: rgb(255, 0, 0);
+        }
+
+        .dialog-container {
+            display: none;
+        }
+
+        .dialog-button {
+            padding: 0 16px;
+            height: 36px;
+            font-size: 14px;
+            line-height: 36px;
+        }
+
+        .dialog-input {
+            width: 100%;
+        }
     </style>
     <script src="https://fastly.jsdelivr.net/npm/hls.js@1"></script>
 </head>
 
 <body>
     <div id="middle">
-        <div id="back" style="width:36px;height: 36px;color: #fff;fill: currentColor;">
+        <div id="back">
             <svg style="width:36px;height: 36px;" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"
                 width="24">
                 <path d="M19,6L9,12l10,6V6L19,6z M7,6H5v12h2V6z"></path>
@@ -231,7 +307,7 @@
                 <path d="M6,4l12,8L6,20V4z"></path>
             </svg>
         </div>
-        <div id="forward" style="width:36px;height: 36px;color: #fff;fill: currentColor;">
+        <div id="forward">
             <svg style="width:36px;height: 36px;" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"
                 width="24">
                 <path d="M5,18l10-6L5,6V18L5,18z M19,6h-2v12h2V6z"></path>
@@ -244,7 +320,7 @@
             <div class="video-times">
                 <div id="first">00:00</div>
                 <div style="color: rgb(255, 255, 255); opacity: 0.7; margin: 0px 4px;">/</div>
-                <div id="second" style="color: rgb(255, 255, 255); opacity: 0.7;">00:00</div>
+                <div id="second">00:00</div>
             </div>
             <div style="flex-grow: 1;"></div>
             <div class="playback_speed button">
@@ -255,45 +331,44 @@
         c3.2,0.4,5.7,3,5.7,6.3s-2.4,6-5.7,6.3l0.1,0.7C16.3,18.6,19,15.6,19,12z"></path>
                 </svg>
             </div>
-            <div class="random button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <div class="random button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
                         d="M14.3,16.3H19v0.8h-4.7V16.3z M11.2,16.3H5v0.8h6.2v1.6H12v-1.6v-0.8v-1.6h-0.8V16.3z M13.6,9.3h0.8V7.7V6.9V5.4h-0.8v1.6H5
         v0.8h8.6V9.3z M16.7,6.9v0.8H19V6.9H16.7z M7.3,13.9h0.8v-1.6v-0.8v-1.6H7.3v1.6H5v0.8h2.3V13.9z M10.4,12.4H19v-0.8h-8.6V12.4z">
                     </path>
-                </svg></div>
+                </svg>
+            </div>
             <div class="fullscreen button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M7,11H6V6h5v1H7V11z M18,6h-5v1h4v4h1V6z M18,13h-1v4h-4v1h5V13z M11,17H7v-4H6v5h5V17z">
                     </path>
                 </svg></div>
         </div>
-        <div class="progress_bar_line" style="height: 43px; width: 100%; align-items: center; display: flex;">
-            <div class="progress_bar_background"
-                style="position: absolute; height: 3px; background-color: rgb(255, 255, 255); opacity: 0.3; width: 100%;">
+        <div class="progress_bar_line">
+            <div class="progress_bar_background">
             </div>
-            <div class="progress_bar_loaded"
-                style="position: absolute; height: 3px; background-color: rgb(255, 255, 255); opacity: 0.6; width: 0.448738%;">
+            <div class="progress_bar_loaded">
             </div>
-            <div class="progress_bar_played" style="position: absolute; height: 3px; background-color: rgb(255, 0, 0);">
+            <div class="progress_bar_played">
             </div>
-            <div class="progress_bar_playhead_wrapper" style="position: absolute; z-index: 0;">
-                <div class="progress_bar_playhead_dot"
-                    style="display: block; height: 12px; width: 12px; border-radius: 50%; background-color: rgb(255, 0, 0);">
+            <div class="progress_bar_playhead_wrapper">
+                <div class="progress_bar_playhead_dot">
                 </div>
             </div>
         </div>
     </div>
     <video style="position: absolute;"></video>
 
-    <div class="dialog-container" style="display: none;">
+    <div class="dialog-container">
         <div class="dialog">
             <div class="dialog-header">
                 <h2 class="dialog-title">跳转</h2>
             </div>
             <div class="dialog-body">
-                <input placeholder="1h0m0s" style="width: 100%;">
+                <input class="dialog-input" placeholder="1h0m0s" value="0h10m0s">
             </div>
             <div class="dialog-buttons">
-                <div style="padding: 0 16px;height: 36px;font-size: 14px;line-height: 36px;">
+                <div class="dialog-button">
                     确认
                 </div>
             </div>

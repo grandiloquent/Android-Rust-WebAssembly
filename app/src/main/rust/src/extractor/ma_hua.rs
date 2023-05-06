@@ -75,7 +75,7 @@ pub async fn extract_ma_hua(
 }
 async fn fetch_ma_hua_location<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<String> {
     let mut client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::limited(0))
+        .redirect(reqwest::redirect::Policy::none())
         .user_agent(config.user_agent);
     if let Some(proxy) = config.proxy {
         let proxy = reqwest::Proxy::http(proxy)?;

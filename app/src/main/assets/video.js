@@ -88,7 +88,7 @@ async function readText() {
     return strings
 }
 function setSrc(video, src) {
-    if (!video.canPlayType('application/vnd.apple.mpegurl') && Hls.isSupported()) {
+    if (src.indexOf(".m3u8") !== -1 && !video.canPlayType('application/vnd.apple.mpegurl') && Hls.isSupported()) {
         var hls = new Hls();
         hls.loadSource(src);
         hls.attachMedia(

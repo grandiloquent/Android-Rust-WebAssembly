@@ -106,7 +106,7 @@ pub async fn run_server(srv: Server, ass: AssetManager) {
         .manage(Arc::new(Database(Arc::new(Mutex::new(conn)))))
         .mount(
             "/",
-            routes![handler::db::list,handler::db::search,handler::db::delete_video,handler::db::hidden_video,handler::files::files,handler::html::file,handler::video::parse,handler::video::get,handler::video::get_url,handler::video::update,handler::video::update_fav,handler::video::update_duration],
+            routes![handler::db::list,handler::db::search,handler::db::delete_video,handler::db::hidden_video,handler::files::files,handler::html::fav,handler::html::file,handler::video::parse,handler::video::get,handler::video::get_url,handler::video::update,handler::video::update_fav,handler::video::update_duration],
         )
         .register("/", catchers![not_found]);
     let _ = server.launch().await;
