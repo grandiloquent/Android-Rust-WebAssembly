@@ -12,7 +12,7 @@ pub fn execute_update_video_views(
         |row| Ok((row.get(0)?, row.get(1)?)),
     )?;
     conn.execute(
-        "UPDATE video SET views = ?,update_at = ? WHERE id = ?",
-        params![r.1.unwrap_or(0) + 1,get_epoch_secs(), r.0],
+        "UPDATE video SET views = ? WHERE id = ?",
+        params![r.1.unwrap_or(0) + 1, r.0],
     )
 }
