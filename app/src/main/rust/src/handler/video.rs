@@ -154,7 +154,6 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
 }
 #[get("/video/get?<url>")]
 pub async fn get(url: String, db: &State<Arc<Database>>) -> Status {
-    log::error!("get: {}", url);
     let cookie = if url.contains("/vodplay/") {
         execute_query_cookie(&db.0.lock().unwrap(),5)
     }else if url.contains("jable.tv/") {

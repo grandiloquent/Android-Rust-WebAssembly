@@ -11,10 +11,12 @@ function adjustSize(video) {
         video.style.top = `${(h - height) / 2}px`
     }
 }
-function durationchange(video) {
+function durationchange(video, url) {
+    const second = document.getElementById('second');
     return evt => {
         if (video.duration) {
             second.textContent = formatDuration(video.duration);
+            fetch(`${getBaseAddress()}/video/duration?url=${encodeURIComponent(url)}&duration=${video.duration | 0}`)
         }
         adjustSize(video);
     }
@@ -104,7 +106,6 @@ async function initialize() {
     document.title = videoInformation.title;
     const video = document.querySelector('video');
 
-    const second = document.getElementById('second');
     const loaded = document.querySelector('.progress_bar_loaded');
     const toast = document.querySelector('#toast');
     const download = document.querySelector('.download');
@@ -113,7 +114,7 @@ async function initialize() {
         toast.setAttribute('message', "已成功复制视频地址");
     });
     setSrc(video, videoInformation.file);
-    video.addEventListener('durationchange', durationchange(video, second));
+    video.addEventListener('durationchange', durationchange(video, url));
     video.addEventListener('timeupdate', timeupdate(video));
     video.addEventListener('progress', progress(video, loaded));
     video.addEventListener('play', play());
