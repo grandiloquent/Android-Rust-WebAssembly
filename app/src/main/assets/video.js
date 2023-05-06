@@ -19,22 +19,7 @@ function durationchange(video) {
         adjustSize(video);
     }
 }
-function formatDuration(ms) {
-    if (isNaN(ms)) return '0:00';
-    if (ms < 0) ms = -ms;
-    const time = {
-        hour: Math.floor(ms / 3600) % 24,
-        minute: Math.floor(ms / 60) % 60,
-        second: Math.floor(ms) % 60,
-    };
-    return Object.entries(time)
-        .filter((val, index) => index || val[1])
-        .map(val => (val[1] + '').padStart(2, '0'))
-        .join(':');
-}
-function getBaseAddress() {
-    return window.location.host === "127.0.0.1:5500" ? "http://192.168.0.109:3000" : "";
-}
+
 async function getUrl(baseUri, url) {
     const res = await fetch(`${baseUri}/video/fetch?url=${encodeURIComponent(url)}`);
     return res.json();
@@ -78,15 +63,7 @@ function progress(video, loaded) {
         }
     }
 }
-async function readText() {
-    let strings;
-    if (typeof NativeAndroid !== 'undefined') {
-        strings = NativeAndroid.readText()
-    } else {
-        strings = await navigator.clipboard.readText()
-    }
-    return strings
-}
+
 function setSrc(video, src) {
     if (src.indexOf(".m3u8") !== -1 && !video.canPlayType('application/vnd.apple.mpegurl') && Hls.isSupported()) {
         var hls = new Hls();
@@ -98,10 +75,16 @@ function setSrc(video, src) {
         video.src = src;
     }
 }
-function timeupdate(video, first) {
+function timeupdate(video) {
+    const first = document.getElementById('first');
+    const progressBarPlayed = document.querySelector('.progress_bar_played');
+    const progressBarPlayheadWrapper = document.querySelector('.progress_bar_playhead_wrapper');
     return evt => {
         if (video.currentTime) {
             first.textContent = formatDuration(video.currentTime);
+            const ratio = video.currentTime / video.duration;
+            progressBarPlayed.style.width = `${ratio * 100}%`;
+            progressBarPlayheadWrapper.style.marginLeft = `${ratio * 100}%`;
         }
     }
 }
@@ -120,13 +103,18 @@ async function initialize() {
     }
     document.title = videoInformation.title;
     const video = document.querySelector('video');
-    const first = document.getElementById('first');
-    const second = document.getElementById('second');
 
+    const second = document.getElementById('second');
     const loaded = document.querySelector('.progress_bar_loaded');
+    const toast = document.querySelector('#toast');
+    const download = document.querySelector('.download');
+    download.addEventListener('click', evt => {
+        writeText(videoInformation.file);
+        toast.setAttribute('message', "已成功复制视频地址");
+    });
     setSrc(video, videoInformation.file);
     video.addEventListener('durationchange', durationchange(video, second));
-    video.addEventListener('timeupdate', timeupdate(video, first));
+    video.addEventListener('timeupdate', timeupdate(video));
     video.addEventListener('progress', progress(video, loaded));
     video.addEventListener('play', play());
     video.addEventListener('pause', pause());
