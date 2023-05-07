@@ -20,13 +20,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
+// import android.webkit.WebView;
 
 import static psycho.euphoria.plane.ServerService.START_SERVER_ACTION;
 
 public class MainActivity extends Activity {
 
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36";
+    private static final String USER_AGENT = "。Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36";
     private WebView mWebView;
     private BroadcastReceiver mBroadcastReceiver;
     private String mUrl;
@@ -99,7 +99,8 @@ public class MainActivity extends Activity {
 
         }
     }
-
+    // 在每次 onStart 时注册广播接
+    // 收器
     @Override
     protected void onStart() {
 
@@ -124,7 +125,7 @@ public class MainActivity extends Activity {
 
         initialize();
     }
-
+    // 关闭广播接收器
     @Override
     protected void onStop() {
         super.onStop();

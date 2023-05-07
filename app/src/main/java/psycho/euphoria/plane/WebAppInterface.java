@@ -36,7 +36,7 @@ public class WebAppInterface {
         mContext = context;
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
-
+    // 分享保存在程序私有数据目录中文件
     public static Intent buildSharedIntent(Context context, File imageFile) {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         if (imageFile.getName().endsWith(".mp3"))
@@ -61,7 +61,7 @@ public class WebAppInterface {
         }
     }
 
-
+    // 调用原生下载管理器下载文件
     @JavascriptInterface
     public void downloadFile(String fileName, String uri) {
         new Thread(() -> {

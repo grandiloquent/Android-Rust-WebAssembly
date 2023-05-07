@@ -34,10 +34,11 @@ public class ServerService extends Service {
     public static final String START_SERVER_ACTION = "psycho.euphoria.plane.MainActivity.startServer";
 
     static {
-/*
-加载编译Rust代码后得到共享库。它完整的名称为librust.so
-  */
-        System.loadLibrary("rust");
+
+  
+    // 加载 Rust 共享库。它的完整名称
+    // 为 librust.so      
+    System.loadLibrary("rust");
     }
 
     SharedPreferences mSharedPreferences;
@@ -62,6 +63,11 @@ public class ServerService extends Service {
         return new Notification.Action.Builder(null, "关闭", piDismiss).build();
     }
 
+    // 获取连接 WIFI 时被分配的局域网
+    //  IP，如果手机没有连接 WIFI，
+    // 将返回 0.0.0.0，在这种情况下，
+    // 可以打开手机热点，然后通过连接该热点
+    // 进行数据交互
     public static String getDeviceIP(Context context) {
         WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         try {
@@ -93,7 +99,7 @@ public class ServerService extends Service {
     public String getString(String key) {
         return mSharedPreferences.getString(key, "");
     }
-
+    // 获取从指定数值开始第一个空闲的端口
     public static int getUsablePort(int start) {
         while (true) {
             try {
@@ -183,7 +189,10 @@ public class ServerService extends Service {
     private final String TAG = "TAG/" + getClass().getSimpleName();
 
     String mAddress;
-
+    // 当该服务创建并启动服务器后，通过广播
+    // 将服务器的地址发送给侦听该特定的 Activity，
+    // 在该Activity接受到广播后，它
+    // 可以加载该地址。
     private void launchActivity() {
 
         Intent intent = new Intent(START_SERVER_ACTION);
@@ -193,9 +202,12 @@ public class ServerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_DISMISS)) {
+        // 彻底关闭该服务，防止系统重启该服务
+        if (inten!= null && intent.getAction()!= null && intent.getAction().equals(ACTION_DISMISS))
+              {
             stopForeground(true);
             stopSelf();
+            // 通过当前程序进程ID，终止该程序
             Process.killProcess(Process.myPid());
             return START_NOT_STICKY;
         }
