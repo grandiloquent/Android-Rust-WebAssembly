@@ -28,6 +28,11 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+/*
+https://developer.android.com/reference/android/content/Intent
+https://www.jianshu.com/p/b3a95747ee91
+*/
+
 public class ServerService extends Service {
     public static final String ACTION_DISMISS = "psycho.euphoria.plane.ServerService.ACTION_DISMISS";
     public static final String KP_NOTIFICATION_CHANNEL_ID = "notification_channel";
@@ -63,11 +68,11 @@ public class ServerService extends Service {
         return new Notification.Action.Builder(null, "关闭", piDismiss).build();
     }
 
-    // 获取连接 WIFI 时被分配的局域网
-    //  IP，如果手机没有连接 WIFI，
-    // 将返回 0.0.0.0，在这种情况下，
-    // 可以打开手机热点，然后通过连接该热点
-    // 进行数据交互
+    // 获取连接 WIFI 时被分配的局域网 
+    // IP，如果手机没有连接 WIFI，将
+    // 返回 0.0.0.0，在这种情况下，可
+    // 以打开手机热点，然后通过连接该热点进
+    // 行数据交互
     public static String getDeviceIP(Context context) {
         WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         try {
