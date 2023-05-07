@@ -23,6 +23,6 @@ Set-Location  \Plane\app\src\main\rust;cargo ndk -t arm64-v8a --platform 31 -o \
 |https://52ck.cc/|是|
 |https://jable.tv|是|
 
-使用方法
+## 使用方法
 
 大部分视频平台都使用 Cookie 保护视频资源。如果出现视频无法解析或播放的问题，请尝试用该程序内嵌的简易浏览器打开视频的原始网页，刷新1次或完成相应的验证后，再次尝试。
