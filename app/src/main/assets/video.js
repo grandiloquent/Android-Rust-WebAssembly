@@ -183,6 +183,15 @@ function initializeSeekDialog(video) {
 
     document.querySelector('.playback_speed')
         .addEventListener('click', evt => {
+            const step = (video.duration / 10) | 0;
+            let seekTo = video.currentTime + step < video.duration;
+            seekTo = Math.min(seekTo, video.duration);
+            dialogContainer.querySelector('input').value = formatSeconds(seekTo);
             dialogContainer.style.display = 'flex';
         })
+}
+function formatSeconds(value) {
+    const seconds = value % 60;
+    const minutes = value / 60 | 10;
+    return `${minutes}m${seconds}s`;
 }

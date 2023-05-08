@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 // import android.webkit.WebView;
 
 import static psycho.euphoria.plane.ServerService.START_SERVER_ACTION;

@@ -30,7 +30,7 @@ import java.util.Enumeration;
 
 /*
 https://developer.android.com/reference/android/content/Intent
-https://www.jianshu.com/p/b3a95747ee91
+
 */
 
 public class ServerService extends Service {
@@ -39,11 +39,9 @@ public class ServerService extends Service {
     public static final String START_SERVER_ACTION = "psycho.euphoria.plane.MainActivity.startServer";
 
     static {
-
-  
-    // 加载 Rust 共享库。它的完整名称
-    // 为 librust.so      
-    System.loadLibrary("rust");
+        // 加载 Rust 共享库。它的完整名称
+        // 为 librust.so
+        System.loadLibrary("rust");
     }
 
     SharedPreferences mSharedPreferences;
@@ -104,6 +102,7 @@ public class ServerService extends Service {
     public String getString(String key) {
         return mSharedPreferences.getString(key, "");
     }
+
     // 获取从指定数值开始第一个空闲的端口
     public static int getUsablePort(int start) {
         while (true) {
@@ -194,12 +193,12 @@ public class ServerService extends Service {
     private final String TAG = "TAG/" + getClass().getSimpleName();
 
     String mAddress;
+
     // 当该服务创建并启动服务器后，通过广播
     // 将服务器的地址发送给侦听该特定的 Activity，
     // 在该Activity接受到广播后，它
     // 可以加载该地址。
     private void launchActivity() {
-
         Intent intent = new Intent(START_SERVER_ACTION);
         intent.putExtra("address", mAddress);
         sendBroadcast(intent);
@@ -208,8 +207,7 @@ public class ServerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // 彻底关闭该服务，防止系统重启该服务
-        if (inten!= null && intent.getAction()!= null && intent.getAction().equals(ACTION_DISMISS))
-              {
+        if (intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_DISMISS)) {
             stopForeground(true);
             stopSelf();
             // 通过当前程序进程ID，终止该程序
