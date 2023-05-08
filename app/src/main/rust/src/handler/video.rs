@@ -47,12 +47,11 @@ fn read_from_database(
     url: &str,
     db: &MutexGuard<Connection>,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    
     let v = query(db, &url)?;
     if url.contains("xvideos.com") || url.contains("mahua11.com") || url.contains("jable.tv/") {
         let now = get_epoch_secs();
 
-        if !v.2.is_empty() &&now - v.3 <= 3600 {
+        if !v.2.is_empty() && now - v.3 <= 3600 {
             return Ok(serde_json::to_string(&VideoData {
                 title: v.0,
                 subtitle: v.1,
@@ -86,11 +85,11 @@ async fn create_video(
     } else if url.contains("eroticmv.com") {
         Video::erotic_mv(&url, is_detail).await
     } else if url.contains("mahua11.com") {
-        Video::ma_hua(&url,  cookie,is_detail).await
+        Video::ma_hua(&url, cookie, is_detail).await
     } else if url.contains("/vodplay/") {
         Video::five_two_ck(&url, cookie, is_detail).await
     } else if url.contains("jable.tv/") {
-        Video::jable(&url, cookie,is_detail).await
+        Video::jable(&url, cookie, is_detail).await
     } else {
         Err("")?
     }
@@ -109,16 +108,19 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
     }
 
     let cookie = if url.contains("/vodplay/") {
-        execute_query_cookie(&db.0.lock().unwrap(),5)
-    }else if url.contains("jable.tv/") {
-        execute_query_cookie(&db.0.lock().unwrap(),7)
+        execute_query_cookie(&db.0.lock().unwrap(), 5)
+    } else if url.contains("jable.tv/") {
+        execute_query_cookie(&db.0.lock().unwrap(), 7)
     } else if url.contains("mahua11.com") {
-        execute_query_cookie(&db.0.lock().unwrap(),6)
-    }else {
+        execute_query_cookie(&db.0.lock().unwrap(), 6)
+    } else {
         String::new()
     };
     match create_video(&url, !is_update, cookie.as_str()).await {
         Ok(video) => {
+            if video.title.is_empty() || video.image.is_empty() {
+                return Err(Status::NoContent);
+            }
             if is_update {
                 match execute_update_video_file(
                     &db.0.lock().unwrap(),
@@ -131,9 +133,7 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
                     }
                 };
             } else {
-                if video.title.is_empty() || video.image.is_empty() {
-                    return Err(Status::NoContent);
-                }
+                
                 if let Err(err) = insert(&db.0.lock().unwrap(), &video) {
                     log::error!("{}", err.to_string());
                     return Err(Status::Conflict);
@@ -155,20 +155,20 @@ pub async fn parse(url: String, db: &State<Arc<Database>>) -> Result<String, Sta
 #[get("/video/get?<url>")]
 pub async fn get(url: String, db: &State<Arc<Database>>) -> Status {
     let cookie = if url.contains("/vodplay/") {
-        execute_query_cookie(&db.0.lock().unwrap(),5)
-    }else if url.contains("jable.tv/") {
-        execute_query_cookie(&db.0.lock().unwrap(),7)
+        execute_query_cookie(&db.0.lock().unwrap(), 5)
+    } else if url.contains("jable.tv/") {
+        execute_query_cookie(&db.0.lock().unwrap(), 7)
     } else if url.contains("mahua11.com") {
-        execute_query_cookie(&db.0.lock().unwrap(),6)
-    }else {
+        execute_query_cookie(&db.0.lock().unwrap(), 6)
+    } else {
         String::new()
     };
-    match Video::ma_hua(url.as_str(),cookie.as_str(), true).await{
-        Ok(video) =>{
+    match Video::ma_hua(url.as_str(), cookie.as_str(), true).await {
+        Ok(video) => {
             log::error!("id = {}\nuri = {}\ntitle = {}\nfile = {}\nimage = {}\nsource_type = {}\nhidden = {}\ncreate_at = {}\nupdate_at = {}\nid = {}",video.id,video.uri,video.title,video.file,video.image,video.source_type,video.hidden,video.create_at,video.update_at,video.id);
         }
-        Err(err)=>{
-            log::error!("{}",err);
+        Err(err) => {
+            log::error!("{}", err);
         }
     }
     Status::Ok
@@ -194,7 +194,7 @@ pub fn get_url(id: u32, db: &State<Arc<Database>>) -> Result<String, Status> {
 #[get("/video/update?<url>")]
 pub async fn update(url: String, db: &State<Arc<Database>>) -> Result<String, Status> {
     let cookie = if url.contains("/vodplay/") {
-        execute_query_cookie(&db.0.lock().unwrap(),5)
+        execute_query_cookie(&db.0.lock().unwrap(), 5)
     } else {
         String::new()
     };

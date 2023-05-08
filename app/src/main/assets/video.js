@@ -24,6 +24,9 @@ function durationchange(video, url) {
 
 async function getUrl(baseUri, url) {
     const res = await fetch(`${baseUri}/video/fetch?url=${encodeURIComponent(url)}`);
+    if (res.status === 204) {
+        throw new Error(`无法获取视频地址`);
+    }
     return res.json();
 }
 function initializeSeek(video, first) {
@@ -100,11 +103,8 @@ async function initialize() {
     const url = searchParams.get("url");
     let videoInformation;
     try {
-        toast.setAttribute('message', "加载视频");
         videoInformation = await getUrl(getBaseAddress(), url);
-        if (!videoInformation.file) {
-            throw new Error(`无法获取视频地址`);
-        }
+
     } catch (error) {
         toast.setAttribute('message', error.message);
         return;
