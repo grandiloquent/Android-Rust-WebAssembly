@@ -9,7 +9,7 @@
 通过 `-o` 选项设置编译后文件的保存地址。在这里 `\Plane\app\src\main\jniLibs` 是 Android 项目默认存放共享库的目录。在此目录中的文件将被自动打包到最终的 apk 文件中。
 
 ```ps
-Set-Location  \Plane\app\src\main\rust;cargo ndk -t arm64-v8a --platform 31 -o \Plane\app\src\main\jniLibs build --release
+Set-Location C:\Users\Administrator\Desktop\file\Plane\app\src\main\rust;cargo ndk -t arm64-v8a --platform 31 -o C:\Users\Administrator\Desktop\file\Plane\app\src\main\jniLibs build --release
 ```
 
 ## 支持的视频平台

@@ -93,21 +93,27 @@ function timeupdate(video) {
 let timer;
 const middle = document.getElementById('middle');
 const bottom = document.getElementById('bottom');
+const toast = document.getElementById('toast');
+
 async function initialize() {
     const searchParams = new URL(window.location).searchParams;
     const url = searchParams.get("url");
     let videoInformation;
     try {
+        toast.setAttribute('message', "加载视频");
         videoInformation = await getUrl(getBaseAddress(), url);
+        if (!videoInformation.file) {
+            throw new Error(`无法获取视频地址`);
+        }
     } catch (error) {
-        console.log(error);
+        toast.setAttribute('message', error.message);
         return;
     }
     document.title = videoInformation.title;
+    toast.setAttribute('message', videoInformation.title);
     const video = document.querySelector('video');
 
     const loaded = document.querySelector('.progress_bar_loaded');
-    const toast = document.querySelector('#toast');
     const download = document.querySelector('.download');
     download.addEventListener('click', evt => {
         writeText(videoInformation.file);
