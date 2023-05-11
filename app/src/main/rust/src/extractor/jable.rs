@@ -16,7 +16,7 @@ async fn fetch_jable<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<Stri
     let mut client = client.get(url);
     // https://httpdump.app/
     if let Some(v) = config.cookie {
-        //client = client.header("Cookie", v);
+        client = client.header("cookie", v);
     }
     let ip4 = gen_ipv4();
     client = client
@@ -32,10 +32,10 @@ async fn fetch_jable<'a>(url: &str, config: &Config<'a>) -> reqwest::Result<Stri
 .header("sec-fetch-mode","navigate")
 .header("sec-fetch-site","none")
 .header("sec-fetch-user","?1")
-.header("upgrade-insecure-requests","1")
-.header("x-forwarded-for", ip4.as_str())
-    .header("x-real-ip", ip4.as_str())
-    ;
+.header("upgrade-insecure-requests","1");
+// .header("x-forwarded-for", ip4.as_str())
+//     .header("x-real-ip", ip4.as_str())
+    
     let res = client.send().await?;
     res.headers().iter().for_each(|h| {
         log::error!(
